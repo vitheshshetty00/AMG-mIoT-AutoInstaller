@@ -1,0 +1,34 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- General Button Style -->
+    <Style TargetType="Button" x:Key="SidebarButtonStyle">
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="10,5"/>
+        <Setter Property="Margin" Value="5"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        
+    </Style>
+
+    <!-- Glass Background Style -->
+    <Style TargetType="Border" x:Key="GlassBackground">
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="Background" Value="#5525252E"/>
+        <Setter Property="Margin" Value="10"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <BlurEffect Radius="10"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Panel Border Style -->
+    <Style TargetType="Border" x:Key="PanelBorder">
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+        <Setter Property="Margin" Value="10"/>
+    </Style>
+</ResourceDictionary>
