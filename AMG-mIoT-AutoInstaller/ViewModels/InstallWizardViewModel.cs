@@ -365,8 +365,11 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
 
         private async Task ExecuteEnableIISAsync(InstallableComponent component)
         {
-            string scriptPath =
-                "D:\\Devteam\\AMIT\\AMG-mIoT-AutoInstaller\\AMG-mIoT-AutoInstaller\\Scripts\\Install-IIS.ps1";
+            string scriptPath = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "Scripts",
+                "Install-IIS.ps1"
+            );
             component.InstallationLogs.Add("Starting IIS installation...");
             var args = $"-NoProfile -ExecutionPolicy Bypass -File \"{scriptPath}\"";
 
@@ -382,7 +385,8 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
                 return;
 
             string scriptPath = Path.Combine(
-                "D:\\Devteam\\AMIT\\AMG-mIoT-AutoInstaller\\AMG-mIoT-AutoInstaller\\Scripts",
+                AppDomain.CurrentDomain.BaseDirectory,
+                "Scripts",
                 "Open-FirewallPorts.ps1"
             );
 

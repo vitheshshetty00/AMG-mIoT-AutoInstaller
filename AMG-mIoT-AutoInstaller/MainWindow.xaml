@@ -11,7 +11,8 @@
         ResizeMode="CanResizeWithGrip"
         AllowsTransparency="True"
         Background="Transparent"
-        SizeChanged="Window_SizeChanged">
+        SizeChanged="Window_SizeChanged"
+        Icon="{StaticResource AppIcon}">
 
     <Window.Resources>
         <!-- Converter for comparing SelectedSection with Button.Tag -->

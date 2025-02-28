@@ -20,6 +20,8 @@
                     Color="#12121A"/>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <!-- Almost black with a hint of blue -->
+            <BitmapImage x:Key="AppIcon"
+                    UriSource="pack://application:,,,/Resources/installerlogo.png"/>
         </ResourceDictionary>
         
     </Application.Resources>

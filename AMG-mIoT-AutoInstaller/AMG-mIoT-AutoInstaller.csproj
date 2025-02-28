@@ -8,6 +8,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Authors>Vithesh Shetty</Authors>
+    <Company>AMIT</Company>
+    <PackageIcon>installerlogo.png</PackageIcon>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,10 +24,21 @@
     <PackageReference Include="Refractored.MvvmHelpers" Version="1.6.2" />
   </ItemGroup>
 
-<ItemGroup>
+  <ItemGroup>
     <None Include="Scripts\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-</ItemGroup>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\installerlogo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Resources\installerlogo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>
