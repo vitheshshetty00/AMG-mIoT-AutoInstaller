@@ -2,6 +2,7 @@
 using System.Windows;
 using AMG_mIoT_AutoInstaller.Services;
 using AMG_mIoT_AutoInstaller.ViewModels;
+using AutoUpdaterDotNET;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AMG_mIoT_AutoInstaller
@@ -19,9 +20,9 @@ namespace AMG_mIoT_AutoInstaller
 
         private void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IInstallationService, InstallationService>();
-            services.AddTransient<MainWindowViewModel>();
-            services.AddTransient<InstallWizardViewModel>();
+            _ = services.AddSingleton<IInstallationService, InstallationService>();
+            _ = services.AddTransient<MainWindowViewModel>();
+            _ = services.AddTransient<InstallWizardViewModel>();
         }
 
         private void Application_Startup(object sender, StartupEventArgs e)

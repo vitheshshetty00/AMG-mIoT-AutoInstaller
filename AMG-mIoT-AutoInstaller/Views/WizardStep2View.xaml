@@ -10,239 +10,11 @@
         <vm:InstallWizardViewModel/>
     </UserControl.DataContext>
     <UserControl.Resources>
-        <!-- Update the ModernComboBoxStyle in UserControl.Resources -->
-        <Style x:Key="ModernComboBoxStyle"
-               TargetType="ComboBox"
-               BasedOn="{StaticResource {x:Type ComboBox}}">
-            <Setter Property="BorderBrush"
-                    Value="#CCCCCC"/>
-            <Setter Property="Background"
-                    Value="White"/>
-            <Setter Property="Foreground"
-                    Value="#252525"/>
-            <Setter Property="BorderThickness"
-                    Value="1"/>
-            <Style.Triggers>
-                <Trigger Property="IsFocused"
-                         Value="True">
-                    <Setter Property="BorderBrush"
-                            Value="#0078D7"/>
-                </Trigger>
-                <Trigger Property="IsMouseOver"
-                         Value="True">
-                    <Setter Property="BorderBrush"
-                            Value="#0078D7"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="ModernComboBoxItemStyle"
-               TargetType="ComboBoxItem"
-               BasedOn="{StaticResource {x:Type ComboBoxItem}}">
-            <Setter Property="Background"
-                    Value="Transparent"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver"
-                         Value="True">
-                    <Setter Property="Background"
-                            Value="#F0F0F0"/>
-                </Trigger>
-                <Trigger Property="IsSelected"
-                         Value="True">
-                    <Setter Property="Background"
-                            Value="#E5F3FF"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- Modern Button Style -->
-        <Style x:Key="ModernButtonStyle"
-               TargetType="Button">
-            <Setter Property="Background"
-                    Value="#2563EB"/>
-            <Setter Property="Foreground"
-                    Value="White"/>
-            <Setter Property="FontWeight"
-                    Value="SemiBold"/>
-            <Setter Property="Padding"
-                    Value="24,12"/>
-            <Setter Property="BorderThickness"
-                    Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border x:Name="border"
-                                Background="{TemplateBinding Background}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="8">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="8"
-                                                  ShadowDepth="2"
-                                                  Direction="270"
-                                                  Color="#1F2937"
-                                                  Opacity="0.1"/>
-                            </Border.Effect>
-                            <ContentPresenter x:Name="contentPresenter"
-                                              ContentTemplate="{TemplateBinding ContentTemplate}"
-                                              Content="{TemplateBinding Content}"
-                                              HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"
-                                              Margin="{TemplateBinding Padding}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver"
-                                     Value="True">
-                                <Setter TargetName="border"
-                                        Property="Background"
-                                        Value="#1D4ED8"/>
-                                <Setter TargetName="border"
-                                        Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect BlurRadius="12"
-                                                          ShadowDepth="0"
-                                                          Color="#2563EB"
-                                                          Opacity="0.3"/>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="IsPressed"
-                                     Value="True">
-                                <Setter TargetName="border"
-                                        Property="Background"
-                                        Value="#1E40AF"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled"
-                                     Value="False">
-                                <Setter TargetName="border"
-                                        Property="Background"
-                                        Value="#E5E7EB"/>
-                                <Setter Property="Foreground"
-                                        Value="#9CA3AF"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Modern TextBox Style -->
-        <Style x:Key="ModernTextBoxStyle"
-               TargetType="TextBox">
-            <Setter Property="Padding"
-                    Value="10,8"/>
-            <Setter Property="BorderThickness"
-                    Value="1"/>
-            <Setter Property="BorderBrush"
-                    Value="#CCCCCC"/>
-            <Setter Property="Background"
-                    Value="White"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4">
-                            <ScrollViewer x:Name="PART_ContentHost"
-                                          Margin="{TemplateBinding Padding}"
-                                          VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsFocused"
-                         Value="True">
-                    <Setter Property="BorderBrush"
-                            Value="#0078D7"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- Modern CheckBox Style -->
-        <Style x:Key="ModernCheckBoxStyle"
-               TargetType="CheckBox">
-            <Setter Property="Margin"
-                    Value="0,8"/>
-            <Setter Property="Foreground"
-                    Value="#333333"/>
-            <Setter Property="FontSize"
-                    Value="14"/>
-        </Style>
-
-        <!-- Modern TabControl Style -->
-        <Style x:Key="ModernTabControlStyle"
-               TargetType="TabControl">
-            <Setter Property="Background"
-                    Value="Transparent"/>
-            <Setter Property="BorderThickness"
-                    Value="0"/>
-        </Style>
-
-        <!-- Modern TabItem Style -->
-        <Style x:Key="ModernTabItemStyle"
-               TargetType="TabItem">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TabItem">
-                        <Border Name="Border"
-                                Margin="0,0,4,0"
-                                BorderThickness="0,0,0,3"
-                                BorderBrush="Transparent"
-                                Background="Transparent">
-                            <ContentPresenter x:Name="ContentSite"
-                                              VerticalAlignment="Center"
-                                              HorizontalAlignment="Center"
-                                              ContentSource="Header"
-                                              Margin="12,8"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected"
-                                     Value="True">
-                                <Setter TargetName="Border"
-                                        Property="BorderBrush"
-                                        Value="#0078D7"/>
-                                <Setter Property="Foreground"
-                                        Value="#0078D7"/>
-                                <Setter Property="FontWeight"
-                                        Value="SemiBold"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver"
-                                     Value="True">
-                                <Setter TargetName="Border"
-                                        Property="Background"
-                                        Value="#F0F0F0"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Text Styles -->
-        <Style x:Key="HeaderTextStyle"
-               TargetType="TextBlock">
-            <Setter Property="FontSize"
-                    Value="24"/>
-            <Setter Property="FontWeight"
-                    Value="SemiBold"/>
-            <Setter Property="Foreground"
-                    Value="#252525"/>
-            <Setter Property="Margin"
-                    Value="0,0,0,20"/>
-        </Style>
-
-        <Style x:Key="LabelTextStyle"
-               TargetType="TextBlock">
-            <Setter Property="FontSize"
-                    Value="14"/>
-            <Setter Property="FontWeight"
-                    Value="Medium"/>
-            <Setter Property="Foreground"
-                    Value="#505050"/>
-            <Setter Property="Margin"
-                    Value="0,12,0,4"/>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Margin="24">
@@ -282,23 +54,8 @@
                         <ContentControl Content="{Binding Config}">
                             <!-- Define templates for different config types -->
                             <ContentControl.Resources>
-                                <!-- IIS Enable Template -->
-                                <DataTemplate DataType="{x:Type models:IISEnableConfig}">
-                                    <StackPanel>
-                                        <TextBlock Text="IIS Features"
-                                                   FontSize="18"
-                                                   FontWeight="SemiBold"
-                                                   Margin="0,0,0,16"/>
 
-                                        <CheckBox IsChecked="{Binding EnableWebManagement}"
-                                                  Content="Enable Web Management"
-                                                  Style="{StaticResource ModernCheckBoxStyle}"/>
-
-                                        <CheckBox IsChecked="{Binding EnableAspNet}"
-                                                  Content="Enable ASP.NET"
-                                                  Style="{StaticResource ModernCheckBoxStyle}"/>
-                                    </StackPanel>
-                                </DataTemplate>
+                                
 
                                 <!-- Add this inside the ContentControl.Resources section in WizardStep2View.xaml -->
                                 <DataTemplate DataType="{x:Type models:FirewallConfig}">
@@ -404,22 +161,10 @@
                                                     Margin="8,0,0,0"
                                                     Style="{StaticResource ModernButtonStyle}"/>
                                         </Grid>
-
-                                        <TextBlock Text="Startup Type"
-                                                   Style="{StaticResource LabelTextStyle}"/>
-                                        <ComboBox ItemsSource="{Binding StartupTypes}"
-                                                  SelectedItem="{Binding StartupType}"
-                                                  Style="{StaticResource ModernComboBoxStyle}"/>
-
                                        
                                         <TextBlock Text="Description"
                                                    Style="{StaticResource LabelTextStyle}"/>
                                         <TextBox Text="{Binding Description}"
-                                                 Style="{StaticResource ModernTextBoxStyle}"/>
-
-                                        <TextBlock Text="Dependencies (comma-separated)"
-                                                   Style="{StaticResource LabelTextStyle}"/>
-                                        <TextBox Text="{Binding Dependencies}"
                                                  Style="{StaticResource ModernTextBoxStyle}"/>
                                     </StackPanel>
                                 </DataTemplate>

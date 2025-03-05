@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using AMG_mIoT_AutoInstaller.Commands;
 using AMG_mIoT_AutoInstaller.Models;
+using AMG_mIoT_AutoInstaller.Services;
 using AMG_mIoT_AutoInstaller.Views;
 using static AMG_mIoT_AutoInstaller.Models.SQLServerConfig;
 
@@ -21,19 +20,28 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
 
     public class InstallWizardViewModel : BaseViewModel
     {
+        private readonly IInstallationService _installationService;
+        private InstallableComponent _selectedConfigTab;
+
+        public ICommand BrowseFolderCommand { get; }
+        public ICommand NextCommand { get; }
+        public ICommand PreviousCommand { get; }
+        public ICommand StartInstallationCommand { get; }
+
+        public string StartupPath { get; set; }
         private WizardStep _currentStep;
-        private ObservableCollection<InstallableComponent> _componentsToInstall;
-        private ObservableCollection<InstallableComponent> _selectedComponents;
-        public ObservableCollection<string> InstallationLog { get; set; } =
-            new ObservableCollection<string>();
 
-        // Add this property to track the selected tab
-        private object _selectedConfigTab;
+        private ObservableCollection<InstallableComponent>? _componentsToInstall;
+        private ObservableCollection<InstallableComponent>? _selectedComponents;
+        public ObservableCollection<string> InstallationLog { get; set; } = [];
 
-        public InstallWizardViewModel()
+        public InstallWizardViewModel(IInstallationService installationService)
         {
+            _installationService =
+                installationService ?? throw new ArgumentNullException(nameof(installationService));
+
             CurrentStep = WizardStep.Step1_SelectComponents;
-            SelectedComponents = new ObservableCollection<InstallableComponent>();
+            SelectedComponents = [];
             InitializeComponents();
 
             NextCommand = new RelayCommand(ExecuteNext, CanExecuteNext);
@@ -42,53 +50,60 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
                 ExecuteStartInstallation,
                 CanExecuteStartInstallation
             );
+            StartupPath = AppContext.BaseDirectory;
         }
 
         private void InitializeComponents()
         {
             var components = new List<InstallableComponent>
             {
-                new InstallableComponent
+                new()
                 {
                     Type = ComponentType.EnableIIS,
                     Name = "Enable IIS Features",
                     Description = "Enables required IIS features and components",
                 },
-                new InstallableComponent
+                new()
                 {
                     Type = ComponentType.DeployIIS,
                     Name = "Deploy to IIS",
                     Description = "Configures and deploys website to IIS",
                 },
-                new InstallableComponent
+                new()
                 {
                     Type = ComponentType.DotnetInstall,
                     Name = ".NET Runtime Installation",
                     Description = "Installs required .NET runtime version",
                 },
-                new InstallableComponent
+                new()
                 {
                     Type = ComponentType.SQLServerInstall,
                     Name = "SQL Server Installation",
                     Description = "Installs and configures SQL Server",
                 },
-                new InstallableComponent
+                new()
                 {
                     Type = ComponentType.Firewall,
                     Name = "Firewall Configuration",
                     Description = "Sets up required firewall rules",
                 },
-                new InstallableComponent
+                new()
                 {
                     Type = ComponentType.WindowsService,
                     Name = "Windows Services",
                     Description = "Installs and configures Windows services",
                 },
+                new()
+                {
+                    Type = ComponentType.RestoreDatabase,
+                    Name = "Restore Database",
+                    Description = "Restores database from backup",
+                },
             };
 
             foreach (var component in components)
             {
-                SelectedComponents.Add(component);
+                SelectedComponents?.Add(component);
             }
         }
 
@@ -114,17 +129,11 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
                 case ComponentType.DotnetInstall:
                     component.Config = new DotNetConfig
                     {
-                        Version = "6.0",
+                        Version = "8.0",
                         InstallPath = @"C:\Program Files\dotnet",
                     };
                     break;
-                case ComponentType.SQLServerInstall:
-                    component.Config = new SQLServerConfig
-                    {
-                        ServerName = "(local)",
-                        DatabaseName = "MyDatabase",
-                    };
-                    break;
+
                 case ComponentType.Firewall:
                     component.Config = new FirewallConfig
                     {
@@ -138,7 +147,6 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
                     component.Config = new WindowsServiceConfig
                     {
                         ServiceName = "MyService",
-                        DisplayName = "My Service",
                         ServicePath = "",
                         Description = "Windows service installed via installer",
                         StartupType = "Auto",
@@ -149,7 +157,7 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
             }
         }
 
-        public object SelectedConfigTab
+        public InstallableComponent SelectedConfigTab
         {
             get => _selectedConfigTab;
             set
@@ -173,7 +181,7 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
             }
         }
 
-        public ObservableCollection<InstallableComponent> SelectedComponents
+        public ObservableCollection<InstallableComponent>? SelectedComponents
         {
             get => _selectedComponents;
             set
@@ -183,7 +191,7 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
             }
         }
 
-        public ObservableCollection<InstallableComponent> ComponentsToInstall
+        public ObservableCollection<InstallableComponent>? ComponentsToInstall
         {
             get => _componentsToInstall;
             set
@@ -193,19 +201,15 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
             }
         }
 
-        public ICommand NextCommand { get; }
-        public ICommand PreviousCommand { get; }
-        public ICommand StartInstallationCommand { get; }
-
         private void ExecuteNext(object parameter)
         {
             switch (CurrentStep)
             {
                 case WizardStep.Step1_SelectComponents:
-                    var selectedComponents = SelectedComponents.Where(c => c.IsSelected).ToList();
-                    if (!selectedComponents.Any())
+                    var selectedComponents = SelectedComponents?.Where(c => c.IsSelected).ToList();
+                    if (selectedComponents?.Count == 0)
                     {
-                        MessageBox.Show(
+                        _ = MessageBox.Show(
                             "Please select at least one component to install.",
                             "Selection Required",
                             MessageBoxButton.OK,
@@ -213,15 +217,10 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
                         );
                         return;
                     }
+                    selectedComponents?.ForEach(InitializeComponentConfig);
 
-                    foreach (var component in selectedComponents)
-                    {
-                        InitializeComponentConfig(component);
-                    }
+                    ComponentsToInstall = [.. selectedComponents ?? []];
 
-                    ComponentsToInstall = new ObservableCollection<InstallableComponent>(
-                        selectedComponents
-                    );
                     CurrentStep = WizardStep.Step2_ConfigureComponents;
                     break;
 
@@ -239,12 +238,12 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
 
         private bool ValidateConfigurations()
         {
-            foreach (var component in ComponentsToInstall)
+            foreach (var component in ComponentsToInstall!)
             {
-                if (!component.ValidateConfiguration())
+                if (component == null || !component.ValidateConfiguration())
                 {
-                    MessageBox.Show(
-                        $"Please complete all required configuration fields for {component.Name}",
+                    _ = MessageBox.Show(
+                        $"Please complete all required configuration fields for {component?.Name ?? "Unknown Component"}",
                         "Configuration Required",
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning
@@ -281,240 +280,14 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
             return CurrentStep != WizardStep.Step1_SelectComponents;
         }
 
-        private Task RunPowerShellScriptAsync(
-            string scriptPath,
-            string args,
-            InstallableComponent component
-        )
+        private void ExecuteStartInstallation(object parameter)
         {
-            return Task.Run(() =>
+            if (ComponentsToInstall == null)
             {
-                var startInfo = new ProcessStartInfo
-                {
-                    FileName = "powershell.exe",
-                    Arguments =
-                        args ?? $"-NoProfile -ExecutionPolicy Bypass -File \"{scriptPath}\"",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    Verb =
-                        "runas" // This ensures the process runs with admin privileges
-                    ,
-                };
-
-                using (var process = new Process { StartInfo = startInfo })
-                {
-                    process.OutputDataReceived += (sender, e) =>
-                    {
-                        if (!string.IsNullOrEmpty(e.Data))
-                        {
-                            Application.Current.Dispatcher.Invoke(() =>
-                            {
-                                component.InstallationLogs.Add(e.Data);
-                            });
-                        }
-                    };
-
-                    process.ErrorDataReceived += (sender, e) =>
-                    {
-                        if (!string.IsNullOrEmpty(e.Data))
-                        {
-                            Application.Current.Dispatcher.Invoke(() =>
-                            {
-                                component.InstallationLogs.Add($"ERROR: {e.Data}");
-                            });
-                        }
-                    };
-
-                    try
-                    {
-                        process.Start();
-                        process.BeginOutputReadLine();
-                        process.BeginErrorReadLine();
-                        process.WaitForExit();
-
-                        if (process.ExitCode != 0)
-                        {
-                            Application.Current.Dispatcher.Invoke(() =>
-                            {
-                                component.InstallationLogs.Add(
-                                    $"Process exited with code: {process.ExitCode}"
-                                );
-                            });
-                        }
-                    }
-                    catch (System.ComponentModel.Win32Exception ex)
-                    {
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            component.InstallationLogs.Add(
-                                $"Failed to start process: {ex.Message}"
-                            );
-                            MessageBox.Show(
-                                "This operation requires administrative privileges.",
-                                "Administrator Rights Required",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Warning
-                            );
-                        });
-                    }
-                }
-            });
-        }
-
-        private async Task ExecuteEnableIISAsync(InstallableComponent component)
-        {
-            string scriptPath = Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                "Scripts",
-                "Install-IIS.ps1"
-            );
-            component.InstallationLogs.Add("Starting IIS installation...");
-            var args = $"-NoProfile -ExecutionPolicy Bypass -File \"{scriptPath}\"";
-
-            await RunPowerShellScriptAsync(scriptPath, args, component);
-
-            component.InstallationLogs.Add("IIS installation completed.");
-        }
-
-        private async Task ExecuteFirewallConfigAsync(InstallableComponent component)
-        {
-            var config = component.Config as FirewallConfig;
-            if (config == null)
+                Debug.WriteLine("No components to install.");
                 return;
-
-            string scriptPath = Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                "Scripts",
-                "Open-FirewallPorts.ps1"
-            );
-
-            var args =
-                $"-NoProfile -ExecutionPolicy Bypass -File \"{scriptPath}\" "
-                + $"-Ports \"{config.Ports}\" "
-                + $"-Protocol \"{config.Protocol}\" "
-                + $"-RuleName \"{config.RuleName}\" "
-                + $"-Description \"{config.Description}\"";
-
-            component.InstallationLogs.Add("Configuring firewall rules...");
-
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = "powershell.exe",
-                Arguments = args,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                Verb = "runas",
-            };
-
-            await RunPowerShellScriptAsync(scriptPath, args, component);
-
-            component.InstallationLogs.Add("Firewall configuration completed.");
-        }
-
-        private async Task ExecuteIISDeployAsync(InstallableComponent component)
-        {
-            var config = component.Config as IISDeployConfig;
-            if (config == null)
-                return;
-
-            string scriptPath = Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                "Scripts",
-                "Deploy-IISSite.ps1"
-            );
-
-            var args =
-                $"-NoProfile -ExecutionPolicy Bypass -File \"{scriptPath}\" "
-                + $"-SiteName \"{config.WebsiteName}\" "
-                + $"-Port {config.Port} "
-                + $"-PhysicalPath \"{config.PhysicalPath}\"";
-
-            component.InstallationLogs.Add("Starting IIS site deployment...");
-            await RunPowerShellScriptAsync(scriptPath, args, component);
-            component.InstallationLogs.Add("IIS site deployment completed.");
-        }
-
-        private async Task ExecuteWindowsServiceInstallAsync(InstallableComponent component)
-        {
-            var config = component.Config as WindowsServiceConfig;
-            if (config == null)
-                return;
-
-            string scriptPath = Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                "Scripts",
-                "Install-Service.ps1"
-            );
-
-            var args =
-                $"-NoProfile -ExecutionPolicy Bypass -File \"{scriptPath}\" "
-                + $"-ServiceName \"{config.ServiceName}\" "
-                + $"-ServicePath \"{config.ServicePath}\" "
-                + $"-DisplayName \"{config.DisplayName}\" "
-                + $"-Description \"{config.Description}\" "
-                + $"-StartupType \"{config.StartupType}\" "
-                + $"-ServiceAccount \"{config.ServiceAccount}\"";
-
-            if (!string.IsNullOrEmpty(config.ServicePassword))
-            {
-                args += $" -ServicePassword \"{config.ServicePassword}\"";
             }
-
-            if (!string.IsNullOrEmpty(config.Dependencies))
-            {
-                args += $" -Dependencies \"{config.Dependencies}\"";
-            }
-
-            component.InstallationLogs.Add("Installing Windows Service...");
-            await RunPowerShellScriptAsync(scriptPath, args, component);
-            component.InstallationLogs.Add("Windows Service installation completed.");
-        }
-
-        private async void ExecuteStartInstallation(object parameter)
-        {
-            try
-            {
-                foreach (var component in ComponentsToInstall)
-                {
-                    component.Status = "Installing...";
-                    try
-                    {
-                        switch (component.Type)
-                        {
-                            case ComponentType.EnableIIS:
-                                await ExecuteEnableIISAsync(component);
-                                break;
-                            case ComponentType.Firewall:
-                                await ExecuteFirewallConfigAsync(component);
-                                break;
-                            case ComponentType.WindowsService:
-                                await ExecuteWindowsServiceInstallAsync(component);
-                                break;
-                            case ComponentType.DeployIIS:
-                                await ExecuteIISDeployAsync(component);
-                                break;
-
-                            // Add additional cases for other components
-                        }
-                        component.Status = "Completed";
-                    }
-                    catch (Exception ex)
-                    {
-                        component.Status = "Failed";
-                        component.InstallationLogs.Add($"ERROR: {ex.Message}");
-                    }
-                }
-            }
-            finally
-            {
-                // Optionally close the window when installation completes
-                // installationWindow.Close();
-                // Or leave it open for the user to review the log
-            }
+            _installationService.StartInstallation(ComponentsToInstall, InstallationLog);
         }
 
         private bool CanExecuteStartInstallation(object parameter)

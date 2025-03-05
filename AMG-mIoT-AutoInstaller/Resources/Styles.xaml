@@ -2,22 +2,197 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- General Button Style -->
-    <Style TargetType="Button" x:Key="SidebarButtonStyle">
-        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Padding" Value="10,5"/>
-        <Setter Property="Margin" Value="5"/>
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Cursor" Value="Hand"/>
-        
+    <Style TargetType="Button"
+            x:Key="SidebarButtonStyle">
+        <Setter Property="Background"
+                Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground"
+                Value="White"/>
+        <Setter Property="BorderThickness"
+                Value="0"/>
+        <Setter Property="Padding"
+                Value="10,5"/>
+        <Setter Property="Margin"
+                Value="5"/>
+        <Setter Property="FontSize"
+                Value="14"/>
+        <Setter Property="Cursor"
+                Value="Hand"/>
+
+    </Style>
+    <Style x:Key="ModernComboBoxStyle"
+            TargetType="ComboBox">
+        <Setter Property="BorderBrush"
+                Value="#CCCCCC"/>
+        <Setter Property="Background"
+                Value="White"/>
+        <Setter Property="Foreground"
+                Value="#252525"/>
+        <Setter Property="BorderThickness"
+                Value="1"/>
+        <Style.Triggers>
+            <Trigger Property="IsFocused"
+                    Value="True">
+                <Setter Property="BorderBrush"
+                        Value="#0078D7"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver"
+                    Value="True">
+                <Setter Property="BorderBrush"
+                        Value="#0078D7"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Modern ComboBoxItem Style -->
+    <Style x:Key="ModernComboBoxItemStyle"
+            TargetType="ComboBoxItem">
+        <Setter Property="Background"
+                Value="Transparent"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver"
+                    Value="True">
+                <Setter Property="Background"
+                        Value="#F0F0F0"/>
+            </Trigger>
+            <Trigger Property="IsSelected"
+                    Value="True">
+                <Setter Property="Background"
+                        Value="#E5F3FF"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Modern Button Style -->
+    <Style x:Key="ModernButtonStyle"
+            TargetType="Button">
+        <Setter Property="Background"
+                Value="#2563EB"/>
+        <Setter Property="Foreground"
+                Value="White"/>
+        <Setter Property="FontWeight"
+                Value="SemiBold"/>
+        <Setter Property="Padding"
+                Value="24,12"/>
+        <Setter Property="BorderThickness"
+                Value="0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="8">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Margin="{TemplateBinding Padding}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver"
+                                Value="True">
+                            <Setter TargetName="border"
+                                    Property="Background"
+                                    Value="#1D4ED8"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed"
+                                Value="True">
+                            <Setter TargetName="border"
+                                    Property="Background"
+                                    Value="#1E40AF"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled"
+                                Value="False">
+                            <Setter TargetName="border"
+                                    Property="Background"
+                                    Value="#E5E7EB"/>
+                            <Setter Property="Foreground"
+                                    Value="#9CA3AF"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Modern TextBox Style (for InstanceName, SaPassword, etc.) -->
+    <Style x:Key="ModernTextBoxStyle"
+            TargetType="TextBox">
+        <Setter Property="Padding"
+                Value="10,8"/>
+        <Setter Property="BorderThickness"
+                Value="1"/>
+        <Setter Property="BorderBrush"
+                Value="#CCCCCC"/>
+        <Setter Property="Background"
+                Value="White"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="4">
+                        <ScrollViewer x:Name="PART_ContentHost"
+                                Margin="{TemplateBinding Padding}"
+                                VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsFocused"
+                    Value="True">
+                <Setter Property="BorderBrush"
+                        Value="#0078D7"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Modern CheckBox Style (for EnableFileStream, TcpEnabled) -->
+    <Style x:Key="ModernCheckBoxStyle"
+            TargetType="CheckBox">
+        <Setter Property="Margin"
+                Value="0,8"/>
+        <Setter Property="Foreground"
+                Value="#333333"/>
+        <Setter Property="FontSize"
+                Value="14"/>
+    </Style>
+
+    <!-- Header Text Style -->
+    <Style x:Key="HeaderTextStyle"
+            TargetType="TextBlock">
+        <Setter Property="FontSize"
+                Value="24"/>
+        <Setter Property="FontWeight"
+                Value="SemiBold"/>
+        <Setter Property="Foreground"
+                Value="#252525"/>
+        <Setter Property="Margin"
+                Value="0,0,0,20"/>
+    </Style>
+
+    <!-- Label Text Style -->
+    <Style x:Key="LabelTextStyle"
+            TargetType="TextBlock">
+        <Setter Property="FontSize"
+                Value="14"/>
+        <Setter Property="FontWeight"
+                Value="Medium"/>
+        <Setter Property="Foreground"
+                Value="#505050"/>
+        <Setter Property="Margin"
+                Value="0,12,0,4"/>
     </Style>
 
     <!-- Glass Background Style -->
-    <Style TargetType="Border" x:Key="GlassBackground">
-        <Setter Property="CornerRadius" Value="10"/>
-        <Setter Property="Background" Value="#5525252E"/>
-        <Setter Property="Margin" Value="10"/>
+    <Style TargetType="Border"
+            x:Key="GlassBackground">
+        <Setter Property="CornerRadius"
+                Value="10"/>
+        <Setter Property="Background"
+                Value="#5525252E"/>
+        <Setter Property="Margin"
+                Value="10"/>
         <Setter Property="Effect">
             <Setter.Value>
                 <BlurEffect Radius="10"/>
@@ -26,9 +201,13 @@
     </Style>
 
     <!-- Panel Border Style -->
-    <Style TargetType="Border" x:Key="PanelBorder">
-        <Setter Property="CornerRadius" Value="10"/>
-        <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
-        <Setter Property="Margin" Value="10"/>
+    <Style TargetType="Border"
+            x:Key="PanelBorder">
+        <Setter Property="CornerRadius"
+                Value="10"/>
+        <Setter Property="Background"
+                Value="{DynamicResource AccentLightBrush}"/>
+        <Setter Property="Margin"
+                Value="10"/>
     </Style>
 </ResourceDictionary>

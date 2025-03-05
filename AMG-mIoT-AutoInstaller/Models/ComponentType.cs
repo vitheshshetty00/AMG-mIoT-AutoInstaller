@@ -8,5 +8,6 @@ namespace AMG_mIoT_AutoInstaller.Models
         SQLServerInstall,
         Firewall,
         WindowsService,
+        RestoreDatabase,
     }
 }

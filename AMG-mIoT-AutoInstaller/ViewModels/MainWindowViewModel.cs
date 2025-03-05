@@ -47,14 +47,19 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
             NavigateToSettingsCommand = new RelayCommand(_ =>
                 SelectedSection = ApplicationSection.Settings
             );
+           
 
             // Initialize current view based on default section.
             UpdateCurrentViewModel();
         }
 
+        
+
         /// <summary>
         /// Gets or sets the currently selected application section.
         /// </summary>
+
+
         public ApplicationSection SelectedSection
         {
             get => _selectedSection;

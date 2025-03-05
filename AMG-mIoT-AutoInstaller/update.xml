@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<item>
+    <version>2.0.0.0</version>
+    <url><![CDATA[https://stgamitpl.blob.core.windows.net/amg-miot-installer/Latest/AMG-mIoT-Installer-latest.zip?sp=racw&st=2025-02-27T07:05:06Z&se=2026-02-28T15:05:06Z&spr=https&sv=2022-11-02&sr=b&sig=pEBR2icp7LndEhq1j0JEfE7AJI9s2wyxoTd3CvjBnPA%3D]]></url>
+    <changelog>https://github.com/vitheshshetty00/TPMTrakApplication/releases/tag/V1.0.0.1</changelog>
+    <mandatory>
+        <value>false</value>
+        <minVersion></minVersion>
+    </mandatory>
+    <checksum algorithm="MD5"></checksum>
+    <args></args>
+</item>

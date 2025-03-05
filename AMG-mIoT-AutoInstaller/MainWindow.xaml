@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         xmlns:local="clr-namespace:AMG_mIoT_AutoInstaller.Converters"
-        xmlns:fa="http://schemas.fontawesome.io/icons/"
+        xmlns:fa="http://schemas.fontawesome.io/icons/" 
         Title="AMG-mIoT Auto Installer"
         Height="700"
         Width="1200"
@@ -13,10 +13,12 @@
         Background="Transparent"
         SizeChanged="Window_SizeChanged"
         Icon="{StaticResource AppIcon}">
+    
 
     <Window.Resources>
         <!-- Converter for comparing SelectedSection with Button.Tag -->
         <local:EqualityMultiConverter x:Key="EqualityMultiConverter"/>
+        
 
         <!-- Reusable Sidebar Button Style -->
         <Style x:Key="SidebarButtonStyle"
@@ -142,6 +144,7 @@
                                FontWeight="Bold"
                                VerticalAlignment="Center"
                                Margin="10,0,0,0"/>
+                    
                     <!-- Window Control Buttons (in a StackPanel) -->
                     <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Right"
