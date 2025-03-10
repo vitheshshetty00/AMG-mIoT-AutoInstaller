@@ -51,11 +51,38 @@ public class WindowsServiceConfig : ComponentConfiguration
 public class WindowsServicesConfig : ComponentConfiguration
 {
     public ObservableCollection<WindowsServiceConfig> PredefinedServices { get; } = [];
+
     public ObservableCollection<WindowsServiceConfig> CustomServices { get; } = [];
 
     public override bool Validate()
     {
         var allServices = PredefinedServices.Where(s => s.IsSelected).Concat(CustomServices);
         return allServices.Any() && allServices.All(s => s.Validate());
+    }
+
+    public void AddPredefinedService()
+    {
+        string serviceDirPath = Path.Combine(AppContext.BaseDirectory, "AMGmIoT Services");
+        if (!Directory.Exists(serviceDirPath))
+            return;
+        DirectoryInfo PredefinedServicesDir = new(serviceDirPath);
+        foreach (var serviceDir in PredefinedServicesDir.GetDirectories())
+        {
+            //Find the service executable file(any file that has .exe extension)
+            string servicePath =
+                Directory.GetFiles(serviceDir.FullName, "*.exe").FirstOrDefault() ?? "";
+
+            if (File.Exists(servicePath))
+            {
+                PredefinedServices.Add(
+                    new WindowsServiceConfig
+                    {
+                        ServiceName = serviceDir.Name,
+                        ServicePath = servicePath,
+                        IsSelected = true,
+                    }
+                );
+            }
+        }
     }
 }

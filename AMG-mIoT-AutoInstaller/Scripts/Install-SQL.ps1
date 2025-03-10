@@ -1,34 +1,50 @@
 param (
-    [string]$ScriptDirectory
+    [Parameter(Mandatory=$true, HelpMessage="Path to the ConfigurationFile.ini")]
+    [string]$ConfigFile,
+
+    [Parameter(Mandatory=$true, HelpMessage="Path to the directory containing or receiving SQLEXPR_x64_ENU.exe")]
+    [string]$SetupFilesDirectory
 )
 
-Write-Output "Starting SQL script execution..."
+# Function to write verbose log messages with timestamps
+function Write-Log {
+    param (
+        [string]$Message,
+        [string]$Level = "INFO"
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $color = switch ($Level) {
+        "INFO" { "White" }
+        "WARNING" { "Yellow" }
+        "ERROR" { "Red" }
+    }
+    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
+}
+
+# Start the script execution
+Write-Log "Starting SQL Server installation script..."
 
 # Ensure the script is running as Administrator
 if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    Write-Host "Please run this script as an Administrator." -ForegroundColor Red
-    exit
+    Write-Log "This script must be run as an Administrator. Please restart with elevated privileges." "ERROR"
+    exit 1
 }
-Write-Output "Script is running as Administrator."
+Write-Log "Script is running with Administrator privileges."
 
-# Use the passed ScriptDirectory parameter or fallback to script directory
-$scriptPath = if ($ScriptDirectory) { $ScriptDirectory } else { $PSScriptRoot }
-Write-Host "Script path: $scriptPath"
+# Construct paths
 
-# Check for config.ini file
-$configFile = "$scriptPath\config.ini"
+$sqlInstallerExe = Join-Path -Path $SetupFilesDirectory -ChildPath "SQLEXPR_x64_ENU.exe"
+$downloadUrl = "https://download.microsoft.com/download/5/1/4/5145fe04-4d30-4b85-b0d1-39533663a2f1/SQL2022-SSEI-Expr.exe"
+
+# Validate the configuration file exists
 if (-not (Test-Path $configFile)) {
-    Write-Host "Configuration file not found: $configFile" -ForegroundColor Red
-    exit
+    Write-Log "Configuration file not found at: $configFile" "ERROR"
+    exit 1
 }
-Write-Output "Found configuration file: $configFile"
+Write-Log "Configuration file located at: $configFile"
 
-# Define SQL Server installer URL and local path
-$sqlInstallerUrl = "https://go.microsoft.com/fwlink/p/?linkid=2215158&clcid=0x4009&culture=en-in&country=in" # SQL Server 2022 Developer Edition
-$sqlInstallerExe = "$env:TEMP\SQLServer2022Developer.exe"
-
-# Function to validate the downloaded file
-function Validate-File {
+# Function to validate the downloaded file size
+function Test-FileValidity {
     param (
         [string]$FilePath
     )
@@ -36,55 +52,77 @@ function Validate-File {
         return $false
     }
     $fileSize = (Get-Item $FilePath).Length
-    return ($fileSize -gt 1MB) # Ensure the file is larger than 1MB
+    return ($fileSize -gt 1MB) # Basic validation: file should be larger than 1MB
 }
 
-# Retry logic for downloading the installer
-$maxRetries = 3
-$retryCount = 0
-while ($retryCount -lt $maxRetries) {
-    try {
-        Write-Host "Downloading SQL Server installer from $sqlInstallerUrl... (Attempt $($retryCount + 1))" -ForegroundColor Cyan
-        Invoke-WebRequest -Uri $sqlInstallerUrl -OutFile $sqlInstallerExe
+# Handle SQL Server installer
+if (-not (Test-Path $sqlInstallerExe)) {
+    Write-Log "SQL installer not found at: $sqlInstallerExe. Initiating download..."
+    
+    # Ensure the setup directory exists
+    if (-not (Test-Path $SetupFilesDirectory)) {
+        New-Item -Path $SetupFilesDirectory -ItemType Directory -Force | Out-Null
+        Write-Log "Created directory for setup files: $SetupFilesDirectory"
+    }
 
-        if (Validate-File -FilePath $sqlInstallerExe) {
-            Write-Host "SQL Server installer downloaded successfully." -ForegroundColor Green
-            break
-        } else {
-            Write-Host "Downloaded file is invalid. Retrying..." -ForegroundColor Yellow
+    # Retry logic for downloading the installer
+    $maxRetries = 3
+    $retryCount = 0
+    while ($retryCount -lt $maxRetries) {
+        try {
+            Write-Log "Downloading SQL Server installer from $downloadUrl (Attempt $($retryCount + 1) of $maxRetries)..."
+            Invoke-WebRequest -Uri $downloadUrl -OutFile $sqlInstallerExe -ErrorAction Stop
+
+            if (Test-FileValidity -FilePath $sqlInstallerExe) {
+                Write-Log "SQL Server installer downloaded successfully to: $sqlInstallerExe"
+                break
+            } else {
+                Write-Log "Downloaded file appears invalid (size too small). Retrying..." "WARNING"
+                Remove-Item $sqlInstallerExe -Force -ErrorAction SilentlyContinue
+            }
+        } catch {
+            Write-Log "Download failed. Error: $_" "ERROR"
         }
-    } catch {
-        Write-Host "Failed to download SQL Server installer. Error: $_" -ForegroundColor Red
-    }
 
-    $retryCount++
-    if ($retryCount -ge $maxRetries) {
-        Write-Host "Maximum retries reached. Exiting script." -ForegroundColor Red
-        exit
+        $retryCount++
+        if ($retryCount -ge $maxRetries) {
+            Write-Log "Failed to download SQL Server installer after $maxRetries attempts. Exiting." "ERROR"
+            exit 1
+        }
+        Start-Sleep -Seconds 5 # Brief delay before retrying
     }
+} else {
+    Write-Log "Using existing SQL Server installer found at: $sqlInstallerExe"
 }
 
-# Install SQL Server using the downloaded installer
-Write-Host "Installing Microsoft SQL Server 2022 Developer..." -ForegroundColor Green
+# Install SQL Server
+Write-Log "Starting Microsoft SQL Server 2022 Express installation..."
 
-# Construct the installation command
-$installCommand = "`"$sqlInstallerExe`" /ConfigurationFile=`"$configFile`" /IACCEPTSQLSERVERLICENSETERMS /Q"
-
-Write-Host "Running command: $installCommand" -ForegroundColor Yellow
+$installArgs = "/ConfigurationFile=`"$configFile`" /IACCEPTSQLSERVERLICENSETERMS /Q"
+Write-Log "Installation command: $sqlInstallerExe $installArgs"
 
 try {
-    Write-Host "Executing SQL Server installation..." -ForegroundColor Cyan
-    $process = Start-Process -FilePath $sqlInstallerExe -ArgumentList "/ConfigurationFile=`"$configFile`" /IACCEPTSQLSERVERLICENSETERMS /Q" -Wait -PassThru
+    Write-Log "Executing SQL Server installation..."
+    $process = Start-Process -FilePath $sqlInstallerExe -ArgumentList $installArgs -Wait -PassThru -NoNewWindow -ErrorAction Stop
 
     if ($process.ExitCode -ne 0) {
-        Write-Host "SQL Server installation failed with exit code: $($process.ExitCode)" -ForegroundColor Red
-        exit
+        Write-Log "SQL Server installation failed with exit code: $($process.ExitCode)" "ERROR"
+        exit 1
     }
-
-    Write-Host "SQL Server installation completed successfully." -ForegroundColor Green
+    Write-Log "SQL Server installation completed successfully."
 } catch {
-    Write-Host "SQL Server installation failed. Error: $_" -ForegroundColor Red
-    exit
+    Write-Log "Installation failed. Error: $_" "ERROR"
+    exit 1
 }
 
-Write-Host "All components have been installed/configured. You can now sit back and relax!" -ForegroundColor Magenta
+# Cleanup: Remove the installer if it was downloaded
+if (Test-Path $sqlInstallerExe) {
+    try {
+        Remove-Item $sqlInstallerExe -Force -ErrorAction Stop
+        Write-Log "Cleaned up downloaded installer: $sqlInstallerExe"
+    } catch {
+        Write-Log "Failed to clean up installer. Error: $_" "WARNING"
+    }
+}
+
+Write-Log "SQL Server installation and configuration completed successfully. Relax and enjoy!"

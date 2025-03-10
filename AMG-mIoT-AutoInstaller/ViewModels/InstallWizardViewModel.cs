@@ -6,7 +6,7 @@ using System.Windows.Input;
 using AMG_mIoT_AutoInstaller.Commands;
 using AMG_mIoT_AutoInstaller.Models;
 using AMG_mIoT_AutoInstaller.Services;
-using AMG_mIoT_AutoInstaller.Views;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using static AMG_mIoT_AutoInstaller.Models.SQLServerConfig;
 
 namespace AMG_mIoT_AutoInstaller.ViewModels
@@ -23,17 +23,19 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
         private readonly IInstallationService _installationService;
         private InstallableComponent _selectedConfigTab;
 
-        public ICommand BrowseFolderCommand { get; }
         public ICommand NextCommand { get; }
         public ICommand PreviousCommand { get; }
+        public ICommand BrowseCommand { get; }
         public ICommand StartInstallationCommand { get; }
+        public ICommand AddCustomServiceCommand { get; }
+        public ICommand RemoveCustomServiceCommand { get; }
 
         public string StartupPath { get; set; }
         private WizardStep _currentStep;
 
         private ObservableCollection<InstallableComponent>? _componentsToInstall;
         private ObservableCollection<InstallableComponent>? _selectedComponents;
-        public ObservableCollection<string> InstallationLog { get; set; } = [];
+        public ObservableCollection<string> InstallationLog { get; set; } = new();
 
         public InstallWizardViewModel(IInstallationService installationService)
         {
@@ -41,7 +43,7 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
                 installationService ?? throw new ArgumentNullException(nameof(installationService));
 
             CurrentStep = WizardStep.Step1_SelectComponents;
-            SelectedComponents = [];
+            SelectedComponents = new ObservableCollection<InstallableComponent>();
             InitializeComponents();
 
             NextCommand = new RelayCommand(ExecuteNext, CanExecuteNext);
@@ -50,6 +52,14 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
                 ExecuteStartInstallation,
                 CanExecuteStartInstallation
             );
+            BrowseCommand = new RelayCommand<string>(ExecuteBrowse);
+
+            // New commands for Windows Services
+            AddCustomServiceCommand = new RelayCommand(ExecuteAddCustomService);
+            RemoveCustomServiceCommand = new RelayCommand<WindowsServiceConfig>(
+                ExecuteRemoveCustomService
+            );
+
             StartupPath = AppContext.BaseDirectory;
         }
 
@@ -127,13 +137,8 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
                     };
                     break;
                 case ComponentType.DotnetInstall:
-                    component.Config = new DotNetConfig
-                    {
-                        Version = "8.0",
-                        InstallPath = @"C:\Program Files\dotnet",
-                    };
+                    component.Config = new DotNetConfig();
                     break;
-
                 case ComponentType.Firewall:
                     component.Config = new FirewallConfig
                     {
@@ -143,17 +148,185 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
                         Description = "Allow incoming web traffic",
                     };
                     break;
-                case ComponentType.WindowsService:
-                    component.Config = new WindowsServiceConfig
+                case ComponentType.SQLServerInstall:
+                    component.Config = new SQLServerConfig
                     {
-                        ServiceName = "MyService",
-                        ServicePath = "",
-                        Description = "Windows service installed via installer",
-                        StartupType = "Auto",
-                        ServiceAccount = "LocalSystem",
+                        // Default SQL Server configuration paths
+                        InstanceName = "MSSQLSERVER",
+                        InstanceId = "MSSQLSERVER",
+                        InstallSharedDir = "C:\\Program Files\\Microsoft SQL Server",
+                        InstallSharedWowDir = "C:\\Program Files (x86)\\Microsoft SQL Server",
+                        InstanceDir = "C:\\Program Files\\Microsoft SQL Server",
+                        SqlUserDbDir = "C:\\Program Files\\Microsoft SQL Server",
+                        SqlUserDbLogDir =
+                            "C:\\Program Files\\Microsoft SQL Server\\MSSQL16.MSSQLSERVER\\MSSQL\\Data",
+                        SqlTempDbDir = "C:\\Program Files\\Microsoft SQL Server",
+                        SqlTempDbLogDir =
+                            "C:\\Program Files\\Microsoft SQL Server\\MSSQL16.MSSQLSERVER\\MSSQL\\Data",
+                        SaPassword = string.Empty,
                     };
                     break;
+                case ComponentType.WindowsService:
+                    // Initialize with the new WindowsServicesConfig
+                    var servicesConfig = new WindowsServicesConfig();
+
+                    // Load predefined services from the AMGmIoT Services folder
+                    servicesConfig.AddPredefinedService();
+
+                    // Add a default custom service if no predefined services found
+                    if (servicesConfig.PredefinedServices.Count == 0)
+                    {
+                        servicesConfig.CustomServices.Add(
+                            new WindowsServiceConfig
+                            {
+                                ServiceName = "MyService",
+                                DisplayName = "My Service",
+                                ServicePath = "",
+                                Description = "Windows service installed via AMGIOT installer",
+                                StartupType = "Auto",
+                                ServiceAccount = "LocalSystem",
+                            }
+                        );
+                    }
+
+                    component.Config = servicesConfig;
+                    break;
+                case ComponentType.RestoreDatabase:
+                    component.Config =
+                        GetDefaultDBConfig()
+                        ?? new DBRestoreConfig
+                        {
+                            ServerInstance = "localhost/MSSQLSERVER",
+                            Password = "pctadmin$1234",
+                            DatabaseName = "AMGIOT",
+                            Username = "sa",
+                        };
+                    break;
+
                 // Add other cases as needed
+            }
+        }
+
+        private DBRestoreConfig? GetDefaultDBConfig()
+        {
+            string dbBackupPath = Path.Combine(AppContext.BaseDirectory, "DbBackup");
+            if (!Directory.Exists(dbBackupPath))
+            {
+                Directory.CreateDirectory(dbBackupPath);
+            }
+            if (Directory.GetFiles(dbBackupPath, "*.bak").Length == 0)
+            {
+                return null;
+            }
+            else
+            {
+                //check sql installation is choosen or not
+                if (
+                    SelectedComponents
+                        ?.Where(c => c.Type == ComponentType.SQLServerInstall)
+                        ?.Where(c => c.IsSelected)
+                        ?.Count() == 0
+                )
+                {
+                    //get the sql config
+                    var sqlConfig =
+                        SelectedComponents
+                            ?.Where(c => c.Type == ComponentType.SQLServerInstall)
+                            ?.FirstOrDefault()
+                            ?.Config as SQLServerConfig;
+                    return new DBRestoreConfig
+                    {
+                        ServerInstance = sqlConfig?.InstanceName ?? @"localhost\MSSQLSERVER",
+                        Password = sqlConfig?.SaPassword ?? "pctadmin$1234",
+                        DatabaseName = "AMGIOT",
+                        Username = "sa",
+                        BackupFilePath = Directory.GetFiles(dbBackupPath, "*.bak")[0],
+                    };
+                }
+                return new DBRestoreConfig
+                {
+                    ServerInstance = "localhost/MSSQLSERVER",
+                    Password = "pctadmin$1234",
+                    DatabaseName = "AMGIOT",
+                    Username = "sa",
+                    BackupFilePath = Directory.GetFiles(dbBackupPath, "*.bak")[0],
+                };
+            }
+        }
+
+        // New method to add a custom service
+        private void ExecuteAddCustomService(object parameter)
+        {
+            if (SelectedConfigTab?.Config is WindowsServicesConfig servicesConfig)
+            {
+                servicesConfig.CustomServices.Add(
+                    new WindowsServiceConfig
+                    {
+                        ServiceName = "NewService",
+                        DisplayName = "New Service",
+                        ServicePath = "",
+                        Description = "Windows service installed via AMGIOT installer",
+                    }
+                );
+            }
+        }
+
+        // New method to remove a custom service
+        private void ExecuteRemoveCustomService(WindowsServiceConfig serviceConfig)
+        {
+            if (SelectedConfigTab?.Config is WindowsServicesConfig servicesConfig)
+            {
+                servicesConfig.CustomServices.Remove(serviceConfig);
+            }
+        }
+
+        // Updated method to browse for service executable
+        private void ExecuteBrowse(string propertyName)
+        {
+            if (
+                SelectedConfigTab?.Config is WindowsServicesConfig servicesConfig
+                && propertyName == "ServicePath"
+            )
+            {
+                var dialog = new CommonOpenFileDialog
+                {
+                    Title = "Select Service Executable",
+                    IsFolderPicker = false,
+                    EnsureFileExists = true,
+                    DefaultExtension = ".exe",
+                    Filters = { new CommonFileDialogFilter("Executable Files", "*.exe") },
+                };
+
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    // For custom services, need to find which specific service is being configured
+                    // In a real implementation, you might pass the service object as a parameter.
+                    // For now, assuming it's for the last added custom service.
+                    var lastService = servicesConfig.CustomServices.LastOrDefault();
+                    if (lastService != null)
+                    {
+                        lastService.ServicePath = dialog.FileName;
+                    }
+                }
+                return;
+            }
+
+            // Regular folder browse dialog for other property types
+            var folderDialog = new CommonOpenFileDialog { IsFolderPicker = true };
+
+            if (folderDialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                SetProperty(propertyName, folderDialog.FileName);
+            }
+        }
+
+        private void SetProperty(string propertyName, string path)
+        {
+            var config = SelectedConfigTab.Config;
+            var property = config.GetType().GetProperty(propertyName);
+            if (property != null && property.PropertyType == typeof(string))
+            {
+                property.SetValue(config, path);
             }
         }
 
@@ -219,7 +392,10 @@ namespace AMG_mIoT_AutoInstaller.ViewModels
                     }
                     selectedComponents?.ForEach(InitializeComponentConfig);
 
-                    ComponentsToInstall = [.. selectedComponents ?? []];
+                    ComponentsToInstall = new ObservableCollection<InstallableComponent>(
+                        //selected components except EnableIIS
+                        selectedComponents!.Where(c => c.Type != ComponentType.EnableIIS)
+                    );
 
                     CurrentStep = WizardStep.Step2_ConfigureComponents;
                     break;

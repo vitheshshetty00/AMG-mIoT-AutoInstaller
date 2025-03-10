@@ -1,144 +1,169 @@
-﻿<!-- File: Views/WizardStep1View.xaml -->
-<UserControl x:Class="AMG_mIoT_AutoInstaller.Views.WizardStep1View"
+﻿<UserControl x:Class="AMG_mIoT_AutoInstaller.Views.WizardStep1View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="clr-namespace:AMG_mIoT_AutoInstaller.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             Background="WhiteSmoke">
-    <UserControl.DataContext>
-        <vm:InstallWizardViewModel/>
-    </UserControl.DataContext>
-
+             xmlns:fa="http://schemas.fontawesome.io/icons/">
     <UserControl.Resources>
-        <Style x:Key="ModernButtonStyle"
-       TargetType="Button">
-            <Setter Property="Background"
-            Value="#2563EB"/>
-            <Setter Property="Foreground"
-            Value="White"/>
-            <Setter Property="FontWeight"
-            Value="SemiBold"/>
-            <Setter Property="Padding"
-            Value="24,12"/>
-            <Setter Property="BorderThickness"
-            Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border x:Name="border"
-                        Background="{TemplateBinding Background}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="8">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="8"
-                                          ShadowDepth="2"
-                                          Direction="270"
-                                          Color="#1F2937"
-                                          Opacity="0.1"/>
-                            </Border.Effect>
-                            <ContentPresenter x:Name="contentPresenter"
-                                      ContentTemplate="{TemplateBinding ContentTemplate}"
-                                      Content="{TemplateBinding Content}"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"
-                                      Margin="{TemplateBinding Padding}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver"
-                             Value="True">
-                                <Setter TargetName="border"
-                                Property="Background"
-                                Value="#1D4ED8"/>
-                                <Setter TargetName="border"
-                                Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect BlurRadius="12"
-                                                  ShadowDepth="0"
-                                                  Color="#2563EB"
-                                                  Opacity="0.3"/>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="IsPressed"
-                             Value="True">
-                                <Setter TargetName="border"
-                                Property="Background"
-                                Value="#1E40AF"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled"
-                             Value="False">
-                                <Setter TargetName="border"
-                                Property="Background"
-                                Value="#E5E7EB"/>
-                                <Setter Property="Foreground"
-                                Value="#9CA3AF"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Component Item Style -->
+            <Style x:Key="ComponentItemStyle" TargetType="Border">
+                <Setter Property="Margin" Value="0,0,0,12"/>
+                <Setter Property="Padding" Value="15"/>
+                <Setter Property="BorderBrush" Value="#E0E0E0"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="Background" Value="White"/>
+                <Setter Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect BlurRadius="10" ShadowDepth="1" Opacity="0.1" Color="#000000"/>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                        <Setter Property="BorderThickness" Value="2"/>
+                        <Setter Property="Background" Value="#F0F7FF"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+
+            <!-- Custom CheckBox Style -->
+            <Style x:Key="FluentCheckBoxStyle" TargetType="CheckBox">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="CheckBox">
+                            <Grid>
+                                <Border x:Name="Border" 
+                                        Width="22" 
+                                        Height="22" 
+                                        CornerRadius="4" 
+                                        BorderThickness="1" 
+                                        BorderBrush="#CCCCCC"
+                                        Background="White">
+                                    <Path x:Name="CheckMark" 
+                                          Stroke="{StaticResource AccentBrush}" 
+                                          StrokeThickness="2.5"
+                                          Data="M4,10 L9,15 L18,6"
+                                          Visibility="Collapsed"
+                                          Stretch="Uniform" 
+                                          Margin="3"/>
+                                </Border>
+                                <ContentPresenter Margin="30,0,0,0" 
+                                                  VerticalAlignment="Center" 
+                                                  HorizontalAlignment="Left"/>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="Border" Property="Background" Value="{StaticResource AccentBrush}"/>
+                                    <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                    <Setter TargetName="CheckMark" Property="Stroke" Value="White"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
-    <Border Grid.Column="1"
-        CornerRadius="10,0,0,0">
-        
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <!-- Title -->
-        <TextBlock Text="Step1 :Select Components"
-                   FontSize="24"
-                   FontWeight="Bold"
-                   Foreground="#333"
-                   Margin="0,0,0,20"/>
-         <TextBlock Text="{Binding StartupPath}" FontSize="14" Foreground="Black" 
-Margin="10,40,10,0" TextWrapping="Wrap" />
 
-            <!-- List of components -->
-        <ScrollViewer Grid.Row="1">
-            <ItemsControl ItemsSource="{Binding SelectedComponents}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Margin="0,0,0,10"
-                                Padding="10"
-                                BorderBrush="#CCC"
-                                BorderThickness="1"
-                                CornerRadius="5"
-                                Background="White">
-                            <StackPanel Orientation="Horizontal">
-                                <CheckBox IsChecked="{Binding IsSelected}"
-                                          VerticalAlignment="Center"
-                                          Margin="0,0,10,0"/>
-                                <StackPanel>
-                                    <TextBlock Text="{Binding Name}"
-                                               FontWeight="Bold"
-                                               Foreground="#333"/>
-                                    <TextBlock Text="{Binding Description}"
-                                               Foreground="#666"
-                                               FontSize="12"/>
+    <Border CornerRadius="10,0,0,0">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Background="White" 
+        CornerRadius="10,0,0,0"
+        Padding="25,20"
+        BorderThickness="0,0,0,1"
+        BorderBrush="#EEEEEE">
+                <StackPanel>
+                    <TextBlock Text="Select Components" 
+                   FontSize="26" 
+                   FontWeight="SemiBold" 
+                   Foreground="#333333"/>
+                    <TextBlock Text="Choose the components you want to install" 
+                   FontSize="14" 
+                   Foreground="#707070" 
+                   Margin="0,5,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Components List -->
+            <ScrollViewer Grid.Row="1" 
+                         Margin="25,20" 
+                         VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding SelectedComponents}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource ComponentItemStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <CheckBox Grid.Column="0" 
+                                              IsChecked="{Binding IsSelected}" 
+                                              VerticalAlignment="Center"
+                                              Style="{StaticResource FluentCheckBoxStyle}"/>
+
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                        <TextBlock Text="{Binding Name}" 
+                                                   FontWeight="SemiBold" 
+                                                   FontSize="16" 
+                                                   Foreground="#303030"/>
+                                        <TextBlock Text="{Binding Description}" 
+                                                   TextWrapping="Wrap"
+                                                   Foreground="#505050" 
+                                                   FontSize="13" 
+                                                   Margin="0,5,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- Navigation Buttons -->
+            <Border Grid.Row="2" 
+                    BorderThickness="0,1,0,0" 
+                    BorderBrush="#E0E0E0" 
+                    Background="#F9F9F9" 
+                    Padding="25,15">
+                <Grid>
+                    
+
+                    <StackPanel Orientation="Horizontal" 
+                                HorizontalAlignment="Right">
+                        <Button 
+                                Command="{Binding NextCommand}" 
+                                Style="{StaticResource ModernButtonStyle}" 
+                                Width="120" 
+                                Height="40">
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Next" VerticalAlignment="Center"/>
+                                    <fa:FontAwesome Icon="ArrowRight" 
+                                                    Margin="8,0,0,0" 
+                                                    VerticalAlignment="Center"/>
                                 </StackPanel>
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
-
-        <!-- Navigation Buttons -->
-        <StackPanel Grid.Row="2"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Right"
-                    Margin="0,20,0,0">
-            <Button Content="Next"
-                    Command="{Binding NextCommand}"
-                    Style="{StaticResource ModernButtonStyle}"
-                    Width="120"
-                    Height="40"
-                    Margin="10,0,0,0"/>
-        </StackPanel>
-    </Grid>
-       </Border>
+                            </Button.Content>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
 </UserControl>

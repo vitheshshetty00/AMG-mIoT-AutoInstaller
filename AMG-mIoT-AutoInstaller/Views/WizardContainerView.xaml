@@ -4,12 +4,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:AMG_mIoT_AutoInstaller.ViewModels"
              xmlns:views="clr-namespace:AMG_mIoT_AutoInstaller.Views" xmlns:converters="clr-namespace:AMG_mIoT_AutoInstaller.Converters"
-             Background="WhiteSmoke"
+             
              >
     <UserControl.Resources>
-        <converters:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Resources/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <converters:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter" />
+        </ResourceDictionary>
     </UserControl.Resources>
-    <Grid>
+    <Grid >
         <!-- Step 1 -->
         <views:WizardStep1View DataContext="{Binding}" 
                             Visibility="{Binding CurrentStep, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Step1_SelectComponents}" />

@@ -18,29 +18,13 @@ namespace AMG_mIoT_AutoInstaller
         {
             InitializeComponent();
 
-            // using (WebClient WebClient = new WebClient())
-            // {
-            //     string text = WebClient.DownloadString(
-            //         new Uri(
-            //             "https://stgamitpl.blob.core.windows.net/amg-miot-installer/Latest/update.xml?sp=r&st=2025-02-27T12:17:58Z&se=2026-02-28T20:17:58Z&spr=https&sv=2022-11-02&sr=b&sig=Sh8GC3gbKnD2Jqi0M7WwFWEgGWhLyaokBqa7zp87FH4%3D"
-            //         )
-            //     );
-
-            //     AutoUpdater.ShowSkipButton = false;
-            //     AutoUpdater.ShowRemindLaterButton = true;
-            //     AutoUpdater.CheckForUpdateEvent += AutoUpdater_CheckForUpdateEvent;
-
-            //     // Uncomment following lines to periodically check for updates.
-            //     StartUpdateCheckLoop();
-            // }
-
             AutoUpdater.ShowSkipButton = true;
             AutoUpdater.ShowRemindLaterButton = true;
             AutoUpdater.CheckForUpdateEvent += AutoUpdater_CheckForUpdateEvent;
             AutoUpdater.DownloadPath = AppContext.BaseDirectory;
             AutoUpdater.RunUpdateAsAdmin = true;
             AutoUpdater.ReportErrors = true;
-            string startupPath =AppContext.BaseDirectory;
+            string startupPath = AppContext.BaseDirectory;
             var currentDirectory = new DirectoryInfo(startupPath);
 
             if (currentDirectory.Parent != null)

@@ -1,5 +1,5 @@
-﻿using AMG_mIoT_AutoInstaller.ViewModels;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
+using AMG_mIoT_AutoInstaller.ViewModels;
 
 namespace AMG_mIoT_AutoInstaller.Views
 {
@@ -12,7 +12,6 @@ namespace AMG_mIoT_AutoInstaller.Views
         {
             InitializeComponent();
             // Inherit DataContext from parent
-
         }
     }
 }

@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         xmlns:local="clr-namespace:AMG_mIoT_AutoInstaller.Converters"
-        xmlns:fa="http://schemas.fontawesome.io/icons/" 
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
+        xmlns:viewmodels="clr-namespace:AMG_mIoT_AutoInstaller.ViewModels"
         Title="AMG-mIoT Auto Installer"
         Height="700"
         Width="1200"
@@ -13,16 +14,57 @@
         Background="Transparent"
         SizeChanged="Window_SizeChanged"
         Icon="{StaticResource AppIcon}">
-    
+
 
     <Window.Resources>
         <!-- Converter for comparing SelectedSection with Button.Tag -->
         <local:EqualityMultiConverter x:Key="EqualityMultiConverter"/>
-        
+
+        <!-- Base Colors -->
+        <Color x:Key="PrimaryColor">#1E1E2E</Color>
+        <Color x:Key="AccentColor">#282839</Color>
+        <Color x:Key="HighlightColor">#6C6C95</Color>
+
+        <!-- Gradient Backgrounds -->
+        <!-- Gradient Backgrounds -->
+        <LinearGradientBrush x:Key="MainBackgroundBrush"
+                             StartPoint="0.0,0.0"
+                             EndPoint="1.0,1.0">
+            <GradientStop Color="#1E1E2E"
+                    Offset="0.0"/>
+            <GradientStop Color="#1F123C"
+                    Offset="0.21"/>
+            <GradientStop Color="#3A1D54"
+                    Offset="0.46"/>
+            <GradientStop Color="#321331"
+                    Offset="0.65"/>
+            <GradientStop Color="#231836"
+                    Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <!-- Mica/Acrylic Effects -->
+        <SolidColorBrush x:Key="AccentBrush"
+                         Color="#1E1E2E"
+                         Opacity="0.9"/>
+
+        <!-- Glassmorphism Effect Brush -->
+        <SolidColorBrush x:Key="GlassBrush"
+                         Color="White"
+                         Opacity="0.07"/>
+
+        <!-- Shadow Effect -->
+        <DropShadowEffect x:Key="SoftShadow"
+                          BlurRadius="15"
+                          Direction="270"
+                          ShadowDepth="2"
+                          Opacity="0.2"
+                          Color="Black"/>
+
+
 
         <!-- Reusable Sidebar Button Style -->
         <Style x:Key="SidebarButtonStyle"
-                TargetType="Button">
+               TargetType="Button">
             <!-- Default Appearance -->
             <Setter Property="Background"
                     Value="Transparent"/>
@@ -38,9 +80,10 @@
                     Value="0"/>
             <Setter Property="Cursor"
                     Value="Hand"/>
-            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontWeight"
+                    Value="SemiBold"/>
             <Setter Property="Template">
-               
+
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="border"
@@ -55,7 +98,7 @@
                         <ControlTemplate.Triggers>
                             <!-- Hover Effect -->
                             <Trigger Property="IsMouseOver"
-                                    Value="True">
+                                     Value="True">
                                 <Setter TargetName="border"
                                         Property="Background"
                                         Value="#0FFFFFFF"/>
@@ -63,14 +106,14 @@
                                 <Setter Property="Foreground"
                                         Value="White"/>
                                 <Setter TargetName="border"
-                                    Property="BorderBrush"
-                                        Value="#AAFFFFFF" />
+                                        Property="BorderBrush"
+                                        Value="#AAFFFFFF"/>
 
 
                             </Trigger>
                             <!-- Pressed Effect -->
                             <Trigger Property="IsPressed"
-                                    Value="True">
+                                     Value="True">
                                 <Setter TargetName="border"
                                         Property="Background"
                                         Value="#CCFFFFFF"/>
@@ -89,17 +132,16 @@
                             <!-- Change the binding to use DataContext instead of RelativeSource -->
                             <Binding Path="SelectedSection"/>
                             <Binding RelativeSource="{RelativeSource Self}"
-                                    Path="Tag"/>
+                                     Path="Tag"/>
                         </MultiBinding>
                     </DataTrigger.Binding>
-                    <Setter 
+                    <Setter
                         Property="Background"
-                            Value="#DDFFFFFF"/>
+                        Value="#DDFFFFFF"/>
                     <Setter
                         Property="Foreground"
-                            Value="Black"
-                        />
-                    
+                        Value="Black"/>
+
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -117,12 +159,39 @@
 
     <!-- Root Grid with a dynamic rounded-rectangle clip -->
     <Grid x:Name="MainGrid"
-            ClipToBounds="True"
-            Background="{StaticResource AccentBrush}">
-        
+          ClipToBounds="True">
+        <!-- Background with gradient -->
+        <Rectangle Fill="{StaticResource MainBackgroundBrush}"/>
+
+        <!-- Decorative glass elements in background -->
+        <Canvas>
+            <Ellipse Width="400"
+                     Height="400"
+                     Fill="#453C67"
+                     Opacity="0.1"
+                     Canvas.Left="-150"
+                     Canvas.Top="-100"/>
+            <Ellipse Width="300"
+                     Height="300"
+                     Fill="#6C6C95"
+                     Opacity="0.07"
+                     Canvas.Right="-100"
+                     Canvas.Bottom="-50"/>
+        </Canvas>
+
         <!-- We apply the clip in code-behind on SizeChanged -->
-        <Border   CornerRadius="10"
+        <Border CornerRadius="10"
                 SnapsToDevicePixels="True">
+            <Border.Background>
+                <SolidColorBrush Color="#1E1E2E"
+                                 Opacity="0.50"/>
+            </Border.Background>
+            <Border.Effect>
+                <BlurEffect Radius="0"
+                            KernelType="Gaussian"
+                            RenderingBias="Quality"/>
+            </Border.Effect>
+
             <Grid>
                 <Grid.RowDefinitions>
                     <!-- Custom Title Bar -->
@@ -132,65 +201,108 @@
                 </Grid.RowDefinitions>
 
                 <!-- Custom Title Bar -->
-                <DockPanel Grid.Row="0"
-                        Background="{StaticResource AccentBrush}"
-                           shell:WindowChrome.IsHitTestVisibleInChrome="True"
-                           DockPanel.LastChildFill="False"
-                           MouseDown="TitleBar_MouseDown">
-                    <!-- Application Title (aligned to left) -->
-                    <TextBlock Text="AMG-mIoT Installer"
-                               Foreground="White"
-                               FontSize="20"
-                               FontWeight="Bold"
-                               VerticalAlignment="Center"
-                               Margin="10,0,0,0"/>
-                    
-                    <!-- Window Control Buttons (in a StackPanel) -->
-                    <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Right"
-                            DockPanel.Dock="Right">
-                        <!-- Minimize Button -->
-                        <Button 
-                                Width="40"
-                                Height="30"
-                                Click="MinimizeButton_Click"
-                                Margin="0,5,5,5">
-                            <fa:FontAwesome Icon="WindowMinimize" 
-                        FontSize="12"/>
-                        </Button>
-                        <!-- Maximize/Restore Button -->
-                        <Button 
-                                Width="40"
-                                Height="30"
-                                Click="MaximizeRestoreButton_Click"
-                                Margin="0,5,5,5">
-                            <fa:FontAwesome Icon="WindowMaximize"
-                        FontSize="12"/>
-                        </Button>
-                        <!-- Close Button -->
-                        <Button 
-                                Width="40"
-                                Height="30"
-                                Click="CloseButton_Click"
-                                Margin="0,5,10,5">
-                            <fa:FontAwesome Icon="Times"
-                        FontSize="14"/>
-                        </Button>
-                    </StackPanel>
-                </DockPanel>
+                <Border Grid.Row="0"
+                        Background="{StaticResource GlassBrush}"
+                        shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                        MouseDown="TitleBar_MouseDown">
+                    <DockPanel DockPanel.LastChildFill="False">
+                        <!-- App Logo -->
+                        <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center"
+                                    Margin="10,0,0,0">
+                            <Image Source="{StaticResource AppIcon}"
+                                   Width="20"
+                                   Height="20"
+                                   Margin="0,0,5,0"/>
+                            <!-- Application Title -->
+                            <TextBlock Text="AMG-mIoT Installer"
+                                       Foreground="White"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Window Control Buttons -->
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    DockPanel.Dock="Right">
+                            <!-- Minimize Button -->
+                            <Button Width="40"
+                                    Height="30"
+                                    Click="MinimizeButton_Click"
+                                    Margin="0,5,0,5"
+                                    Background="Transparent"
+                                    BorderThickness="0">
+                                <fa:FontAwesome Icon="WindowMinimize"
+                                                FontSize="12"
+                                                Foreground="White"/>
+                            </Button>
+
+                            <!-- Maximize/Restore Button -->
+                            <Button Width="40"
+                                    Height="30"
+                                    Click="MaximizeRestoreButton_Click"
+                                    Margin="0,5,0,5"
+                                    Background="Transparent"
+                                    BorderThickness="0">
+                                <fa:FontAwesome Icon="WindowMaximize"
+                                                FontSize="12"
+                                                Foreground="White"/>
+                            </Button>
+
+                            <!-- Close Button -->
+                            <Button Width="40"
+                                    Height="30"
+                                    Click="CloseButton_Click"
+                                    Margin="0,5,10,5"
+                                    Background="Transparent"
+                                    BorderThickness="0">
+                                <fa:FontAwesome Icon="Times"
+                                                FontSize="14"
+                                                Foreground="White"/>
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background"
+                                                Value="Transparent"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="border"
+                                                            Background="{TemplateBinding Background}"
+                                                            CornerRadius="5">
+                                                        <ContentPresenter HorizontalAlignment="Center"
+                                                                          VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver"
+                                                                 Value="True">
+                                                            <Setter TargetName="border"
+                                                                    Property="Background"
+                                                                    Value="#E81123"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
 
                 <!-- Main Content Grid -->
-                <Grid Grid.Row="1" Background="{StaticResource AccentBrush}">
+                <Grid Grid.Row="1"
+                        Background="{StaticResource GlassBrush}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="200"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- Sidebar -->
-                    <Border Background="{StaticResource AccentBrush}"
-                            CornerRadius="0,0,0,10">
+                    <Border>
                         <StackPanel Margin="10"
-                                Orientation="Vertical">
+                                    Orientation="Vertical">
                             <Button Content="Install"
                                     Command="{Binding NavigateToInstallCommand}"
                                     Tag="Install"
@@ -212,9 +324,42 @@
 
                     <!-- Content Area -->
                     <Border Grid.Column="1"
-                            Background="{StaticResource AccentBrush}"
                             CornerRadius="10,0,0,0">
-                        <ContentControl Content="{Binding CurrentView}"/>
+                        <!-- Subtle background pattern -->
+                        <Border.Background>
+                            <SolidColorBrush Color="White"
+                                    Opacity="0.02"/>
+                        </Border.Background>
+
+                        <!-- Actual content -->
+                        <Border Background="#FAFAFA"
+                                Opacity="0.98"
+                                CornerRadius="10,0,0,0">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="15"
+                                                  ShadowDepth="2"
+                                                  Direction="270"
+                                                  Color="Black"
+                                                  Opacity="0.2"/>
+                            </Border.Effect>
+
+                            <ContentControl Content="{Binding CurrentView}"
+                                    ClipToBounds="True">
+                                <ContentControl.Resources>
+                                    <Style TargetType="UserControl">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="UserControl">
+                                                    <Border CornerRadius="10,0,0,0">
+                                                        <ContentPresenter/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ContentControl.Resources>
+                            </ContentControl>
+                        </Border>
                     </Border>
                 </Grid>
             </Grid>

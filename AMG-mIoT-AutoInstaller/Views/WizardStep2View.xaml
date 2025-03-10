@@ -5,28 +5,40 @@
              xmlns:vm="clr-namespace:AMG_mIoT_AutoInstaller.ViewModels"
              xmlns:models="clr-namespace:AMG_mIoT_AutoInstaller.Models"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             Background="#F5F5F5">
-    <UserControl.DataContext>
-        <vm:InstallWizardViewModel/>
-    </UserControl.DataContext>
+             xmlns:fa="http://schemas.fontawesome.io/icons/">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/Styles.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Margin="24">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <TextBlock Text="Step 2: Configure Components"
-                   Style="{StaticResource HeaderTextStyle}"/>
+        <Border Background="#F9F9F9"
+                CornerRadius="10,0,0,0"
+                Padding="25,20"
+                BorderThickness="0,0,0,1"
+                BorderBrush="#E0E0E0">
+            <StackPanel>
+                <TextBlock Text="Configure Components"
+                           FontSize="26"
+                           FontWeight="SemiBold"
+                           Foreground="#333333"/>
+                <TextBlock Text="Configure the settings for each selected component"
+                           FontSize="14"
+                           Foreground="#707070"
+                           Margin="0,5,0,0"/>
+            </StackPanel>
+
+        </Border>
+
 
         <!-- Tab Control for Component Configuration -->
         <TabControl Grid.Row="1"
@@ -34,65 +46,222 @@
                     SelectedItem="{Binding SelectedConfigTab}"
                     Style="{StaticResource ModernTabControlStyle}"
                     ItemContainerStyle="{StaticResource ModernTabItemStyle}"
-                    Margin="0,10">
+                    Margin="15,10">
 
             <TabControl.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Name}"
-                               FontSize="14"/>
+                               FontWeight="DemiBold"
+                               FontSize="12"/>
                 </DataTemplate>
             </TabControl.ItemTemplate>
 
             <TabControl.ContentTemplate>
                 <DataTemplate>
-                    <Border Background="White"
+                    <Border Background="#F9FAFB"
                             CornerRadius="8"
-                            Padding="20"
-                            Margin="0,10,0,0"
-                            BorderThickness="1"
-                            BorderBrush="#E0E0E0">
+                            Padding="16"
+                            Effect="{StaticResource SoftShadowEffect}">
                         <ContentControl Content="{Binding Config}">
-                            <!-- Define templates for different config types -->
                             <ContentControl.Resources>
 
-                                
 
-                                <!-- Add this inside the ContentControl.Resources section in WizardStep2View.xaml -->
                                 <DataTemplate DataType="{x:Type models:FirewallConfig}">
+
                                     <StackPanel>
-                                        <TextBlock Text="Firewall Configuration"
-                                                   FontSize="18"
-                                                   FontWeight="SemiBold"
-                                                   Margin="0,0,0,16"/>
+                                        <!-- Header with icon -->
+                                        <Grid Margin="0,0,0,20">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
 
-                                        <TextBlock Text="Ports (comma-separated or range, e.g. 80,443 or 1000-2000)"
-                                                   Style="{StaticResource LabelTextStyle}"/>
-                                        <TextBox Text="{Binding Ports}"
-                                                 Style="{StaticResource ModernTextBoxStyle}"/>
+                                            <!-- Shield/Firewall Icon -->
+                                            <Border Grid.Column="0"
+                                                    Background="#f0f9ff"
+                                                    Width="40"
+                                                    Height="40"
+                                                    CornerRadius="20"
+                                                    Margin="0,0,16,0">
+                                                <Path Data="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,5A3,3 0 0,1 15,8A3,3 0 0,1 12,11A3,3 0 0,1 9,8A3,3 0 0,1 12,5Z"
+                                                      Fill="{StaticResource AccentBrush}"
+                                                      Width="20"
+                                                      Height="20"
+                                                      Stretch="Uniform"/>
+                                            </Border>
 
-                                        <TextBlock Text="Protocol"
-                                                   Style="{StaticResource LabelTextStyle}"/>
-                                        <ComboBox ItemsSource="{Binding Protocols}"
-                                                  SelectedItem="{Binding Protocol}"
-                                                  Style="{StaticResource ModernComboBoxStyle}"
-                                                  Margin="0,0,0,12">
-                                            <ComboBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding}"/>
-                                                </DataTemplate>
-                                            </ComboBox.ItemTemplate>
-                                        </ComboBox>
+                                            <!-- Header Text -->
+                                            <StackPanel Grid.Column="1"
+                                                        VerticalAlignment="Center">
+                                                <TextBlock Text="Firewall Configuration"
+                                                           FontSize="18"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="#111827"/>
+                                                <TextBlock Text="Configure firewall rules for your application"
+                                                           FontSize="12"
+                                                           Foreground="#6B7280"
+                                                           Margin="0,4,0,0"/>
+                                            </StackPanel>
+                                        </Grid>
 
-                                        <TextBlock Text="Rule Name"
-                                                   Style="{StaticResource LabelTextStyle}"/>
-                                        <TextBox Text="{Binding RuleName}"
-                                                 Style="{StaticResource ModernTextBoxStyle}"/>
 
-                                        <TextBlock Text="Description"
-                                                   Style="{StaticResource LabelTextStyle}"/>
-                                        <TextBox Text="{Binding Description}"
-                                                 Style="{StaticResource ModernTextBoxStyle}"/>
+
+                                        <!-- Ports Input -->
+                                        <StackPanel>
+                                            <TextBlock Text="Ports (comma-separated or range, e.g. 80,443 or 1000-2000)"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Port Icon -->
+                                                <Border Grid.Column="0"
+                                                        Background="#EFF6FF"
+                                                        Width="40"
+                                                        Height="40"
+                                                        VerticalAlignment="Center"
+                                                        HorizontalAlignment="Center"
+                                                        CornerRadius="6"
+                                                        Margin="0,0,10,0">
+                                                    <TextBlock Text="#"
+                                                               FontWeight="Bold"
+                                                               FontSize="16"
+                                                               Foreground="{StaticResource AccentBrush}"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                </Border>
+
+                                                <!-- TextBox -->
+                                                <TextBox Grid.Column="1"
+                                                         Text="{Binding Ports, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                         Height="40"
+                                                         Style="{StaticResource ModernTextBoxStyle}"/>
+                                            </Grid>
+                                        </StackPanel>
+
+
+                                        <StackPanel>
+
+
+                                            <TextBlock Text="Protocol"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+
+                                            <!-- Fixed ComboBox -->
+
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Protocol Icon -->
+                                                <Border Grid.Column="0"
+                                                        Background="#EFF6FF"
+                                                        Width="40"
+                                                        Height="40"
+                                                        VerticalAlignment="Center"
+                                                        HorizontalAlignment="Center"
+                                                        CornerRadius="6"
+                                                        Margin="0,0,10,0">
+                                                    <Path Data="M13,9V3.5L18.5,9M6,2C4.89,2 4,2.89 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2H6Z"
+                                                          Fill="{StaticResource AccentBrush}"
+                                                          Width="18"
+                                                          Height="18"
+                                                          Stretch="Uniform"/>
+                                                </Border>
+
+                                                <!-- ComboBox with simplified style -->
+                                                <ComboBox Grid.Column="1"
+                                                          ItemsSource="{Binding Protocols}"
+                                                          SelectedItem="{Binding Protocol, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                          Height="40"
+                                                          FontSize="14"
+                                                          FontWeight="Normal"
+                                                          Foreground="#374151"
+                                                          Background="White"
+                                                          BorderBrush="#D1D5DB"
+                                                          BorderThickness="1"
+                                                          Padding="8,4">
+
+                                                </ComboBox>
+                                            </Grid>
+                                        </StackPanel>
+
+
+                                        <!-- Rule Name and Description Section -->
+
+                                        <StackPanel>
+                                            <!-- Rule Name -->
+                                            <TextBlock Text="Rule Name"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Rule Name Icon -->
+                                                <Border Grid.Column="0"
+                                                        Background="#EFF6FF"
+                                                        Width="40"
+                                                        Height="40"
+                                                        VerticalAlignment="Center"
+                                                        HorizontalAlignment="Center"
+                                                        CornerRadius="6"
+                                                        Margin="0,0,10,0">
+                                                    <Path Data="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.63L12,2L9.19,8.63L2,9.24L7.46,13.97L5.82,21L12,17.27Z"
+                                                          Fill="{StaticResource AccentBrush}"
+                                                          Width="18"
+                                                          Height="18"
+                                                          Stretch="Uniform"/>
+                                                </Border>
+
+                                                <TextBox Grid.Column="1"
+                                                         Text="{Binding RuleName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource ModernTextBoxStyle}"
+                                                         Height="40"
+                                                         Margin="0,0,0,12"/>
+                                            </Grid>
+
+                                            <!-- Description -->
+                                            <TextBlock Text="Description"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Description Icon -->
+                                                <Border Grid.Column="0"
+                                                        Background="#EFF6FF"
+                                                        Width="40"
+                                                        Height="40"
+                                                        VerticalAlignment="Top"
+                                                        HorizontalAlignment="Center"
+                                                        CornerRadius="6"
+                                                        Margin="0,0,10,0">
+                                                    <Path Data="M14,17H7V15H14M17,13H7V11H17M17,9H7V7H17M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z"
+                                                          Fill="{StaticResource AccentBrush}"
+                                                          Width="18"
+                                                          Height="18"
+                                                          Stretch="Uniform"/>
+                                                </Border>
+
+                                                <TextBox Grid.Column="1"
+                                                         Text="{Binding Description, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource ModernTextBoxStyle}"
+                                                         Height="40"
+                                                         TextWrapping="Wrap"
+                                                         AcceptsReturn="True"
+                                                         VerticalContentAlignment="Top"/>
+                                            </Grid>
+                                        </StackPanel>
+
                                     </StackPanel>
+
                                 </DataTemplate>
 
                                 <!-- IIS Deploy Template -->
@@ -105,12 +274,12 @@
 
                                         <TextBlock Text="Web Site Name"
                                                    Style="{StaticResource LabelTextStyle}"/>
-                                        <TextBox Text="{Binding WebsiteName}"
+                                        <TextBox Text="{Binding WebsiteName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource ModernTextBoxStyle}"/>
 
                                         <TextBlock Text="Port"
                                                    Style="{StaticResource LabelTextStyle}"/>
-                                        <TextBox Text="{Binding Port}"
+                                        <TextBox Text="{Binding Port, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource ModernTextBoxStyle}"/>
 
                                         <TextBlock Text="Physical Path"
@@ -120,74 +289,431 @@
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBox Text="{Binding PhysicalPath}"
+                                            <TextBox Text="{Binding PhysicalPath , ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
                                                      Style="{StaticResource ModernTextBoxStyle}"/>
                                             <Button Content="Browse..."
                                                     Grid.Column="1"
                                                     Margin="8,0,0,0"
+                                                    Command="{Binding DataContext.BrowseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="PhysicalPath"
                                                     Style="{StaticResource ModernButtonStyle}"/>
                                         </Grid>
                                     </StackPanel>
                                 </DataTemplate>
-                                <!-- Add inside ContentControl.Resources in WizardStep2View.xaml -->
-                                <DataTemplate DataType="{x:Type models:WindowsServiceConfig}">
-                                    <StackPanel>
-                                        <TextBlock Text="Windows Service Configuration"
-                                                   FontSize="18"
-                                                   FontWeight="SemiBold"
-                                                   Margin="0,0,0,16"/>
+                                <DataTemplate DataType="{x:Type models:WindowsServicesConfig}">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                  HorizontalScrollBarVisibility="Disabled"
+                                                  Style="{StaticResource MainScrollViewerStyle}">
+                                        <Grid Margin="16">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
 
-                                        <TextBlock Text="Service Name"
-                                                   Style="{StaticResource LabelTextStyle}"/>
-                                        <TextBox Text="{Binding ServiceName}"
-                                                 Style="{StaticResource ModernTextBoxStyle}"/>
+                                            <!-- Header -->
+                                            <TextBlock Text="Windows Services Configuration"
+                                                       FontSize="22"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="#333333"
+                                                       Margin="0,0,0,24"/>
 
-                                        <TextBlock Text="Display Name"
-                                                   Style="{StaticResource LabelTextStyle}"/>
-                                        <TextBox Text="{Binding DisplayName}"
-                                                 Style="{StaticResource ModernTextBoxStyle}"/>
+                                            <!-- Predefined Services Section -->
+                                            <Grid Grid.Row="1"
+                                                  Margin="0,0,0,24">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
 
-                                        <TextBlock Text="Service Path"
-                                                   Style="{StaticResource LabelTextStyle}"/>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBox Text="{Binding ServicePath}"
-                                                     Style="{StaticResource ModernTextBoxStyle}"/>
-                                            <Button Content="Browse..."
-                                                    Grid.Column="1"
-                                                    Margin="8,0,0,0"
-                                                    Style="{StaticResource ModernButtonStyle}"/>
+                                                <Grid Grid.Row="0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="Predefined Services"
+                                                               FontSize="16"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="#333333"
+                                                               Margin="0,0,0,12"/>
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="From AMGmIoT Services folder"
+                                                               FontSize="12"
+                                                               Foreground="#999999"
+                                                               VerticalAlignment="Center"/>
+                                                </Grid>
+
+                                                <Border Grid.Row="1"
+                                                        BorderBrush="#E0E0E0"
+                                                        BorderThickness="1"
+                                                        CornerRadius="6"
+                                                        Background="White"
+                                                        Effect="{StaticResource SoftShadowEffect}">
+
+                                                    <ListView ItemsSource="{Binding PredefinedServices}"
+                                                              BorderThickness="0"
+                                                              ScrollViewer.CanContentScroll="False"
+                                                              ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+
+                                                        <ListView.Template>
+                                                            <ControlTemplate>
+                                                                <ItemsPresenter/>
+                                                            </ControlTemplate>
+                                                        </ListView.Template>
+
+                                                        <ListView.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border Padding="12,8"
+                                                                        Margin="0,2"
+                                                                        Background="#F9F9F9"
+                                                                        CornerRadius="4">
+                                                                    <Grid>
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="Auto"/>
+                                                                            <!-- Checkbox -->
+                                                                            <ColumnDefinition Width="1*"/>
+                                                                            <!-- Service Name -->
+                                                                            <ColumnDefinition Width="2*"/>
+                                                                            <!-- Service Path -->
+                                                                        </Grid.ColumnDefinitions>
+
+                                                                        <!-- Checkbox -->
+                                                                        <CheckBox IsChecked="{Binding IsSelected}"
+                                                                                  VerticalAlignment="Center"
+                                                                                  Margin="0,0,12,0"/>
+
+                                                                        <!-- Service Name (Editable) -->
+                                                                        <StackPanel Grid.Column="1"
+                                                                                    Margin="0,0,16,0"
+                                                                                    HorizontalAlignment="Stretch">
+                                                                            <TextBlock Text="Service Name"
+                                                                                       Foreground="#666666"
+                                                                                       FontSize="11"
+                                                                                       Margin="0,0,0,4"/>
+                                                                            <TextBox Text="{Binding ServiceName}"
+                                                                                     Style="{StaticResource ModernTextBoxStyle}"
+                                                                                     Height="36"
+                                                                                     HorizontalAlignment="Stretch"/>
+                                                                        </StackPanel>
+
+                                                                        <!-- Service Path (Read-Only) -->
+                                                                        <StackPanel Grid.Column="2">
+                                                                            <TextBlock Text="Service Path"
+                                                                                       Foreground="#666666"
+                                                                                       FontSize="11"
+                                                                                       Margin="0,0,0,4"/>
+                                                                            <Border Background="#F0F0F0"
+                                                                                    CornerRadius="4"
+                                                                                    Padding="8,6"
+                                                                                    ToolTip="{Binding ServicePath}">
+                                                                                <TextBlock Text="{Binding ServicePath}"
+                                                                                           Foreground="#666666"
+                                                                                           TextTrimming="CharacterEllipsis"
+                                                                                           TextWrapping="NoWrap"/>
+                                                                            </Border>
+                                                                        </StackPanel>
+                                                                    </Grid>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ListView.ItemTemplate>
+
+                                                        <ListView.ItemContainerStyle>
+                                                            <Style TargetType="{x:Type ListViewItem}"
+                                                                   BasedOn="{StaticResource {x:Type ListViewItem}}">
+                                                                <Setter Property="HorizontalContentAlignment"
+                                                                        Value="Stretch"/>
+                                                                <Setter Property="Padding"
+                                                                        Value="4"/>
+                                                                <Setter Property="Margin"
+                                                                        Value="0,2"/>
+                                                            </Style>
+                                                        </ListView.ItemContainerStyle>
+                                                    </ListView>
+                                                </Border>
+                                            </Grid>
+
+                                            <!-- Custom Services Section -->
+                                            <Grid Grid.Row="2">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+
+                                                <Grid Grid.Row="0"
+                                                      Margin="0,0,0,12">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="Custom Windows Services"
+                                                               FontSize="16"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="#333333"
+                                                               VerticalAlignment="Center"/>
+                                                    <Button Grid.Column="1"
+                                                            Content="Add Custom Service"
+                                                            Command="{Binding DataContext.AddCustomServiceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            Style="{StaticResource ModernButtonStyle}">
+                                                        <Button.Resources>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="CornerRadius"
+                                                                        Value="4"/>
+                                                            </Style>
+                                                        </Button.Resources>
+                                                    </Button>
+                                                </Grid>
+
+                                                <Border Grid.Row="1"
+                                                        BorderBrush="#E0E0E0"
+                                                        BorderThickness="1"
+                                                        CornerRadius="6"
+                                                        Background="White"
+                                                        Effect="{StaticResource SoftShadowEffect}">
+                                                    <ListView ItemsSource="{Binding CustomServices}"
+                                                              MaxHeight="380"
+                                                              BorderThickness="0">
+                                                        <ListView.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border Padding="12"
+                                                                        Margin="0,4"
+                                                                        Background="#F9F9F9"
+                                                                        CornerRadius="4">
+                                                                    <Grid>
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="1*"/>
+                                                                            <ColumnDefinition Width="1*"/>
+                                                                        </Grid.ColumnDefinitions>
+                                                                        <Grid.RowDefinitions>
+                                                                            <RowDefinition Height="Auto"/>
+                                                                            <!-- Header -->
+                                                                            <RowDefinition Height="Auto"/>
+                                                                            <!-- ServiceName and Description -->
+                                                                            <RowDefinition Height="Auto"/>
+                                                                            <!-- DisplayName -->
+                                                                            <RowDefinition Height="Auto"/>
+                                                                            <!-- ServicePath -->
+                                                                            <RowDefinition Height="Auto"/>
+                                                                            <!-- Remove button -->
+                                                                        </Grid.RowDefinitions>
+
+                                                                        <!-- Service Name as Header -->
+                                                                        <TextBlock Grid.Row="0"
+                                                                                   Grid.ColumnSpan="2"
+                                                                                   Text="{Binding ServiceName}"
+                                                                                   FontWeight="SemiBold"
+                                                                                   FontSize="14"
+                                                                                   Margin="0,0,0,12"/>
+
+                                                                        <!-- Service Name Field -->
+                                                                        <StackPanel Grid.Row="1"
+                                                                                    Grid.Column="0"
+                                                                                    Margin="0,0,8,12">
+                                                                            <TextBlock Text="Service Name"
+                                                                                       Foreground="#666666"
+                                                                                       FontSize="12"
+                                                                                       Margin="0,0,0,4"/>
+                                                                            <TextBox Text="{Binding ServiceName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                                                     Style="{StaticResource ModernTextBoxStyle}"/>
+                                                                        </StackPanel>
+
+                                                                        <!-- Description Field -->
+                                                                        <StackPanel Grid.Row="1"
+                                                                                    Grid.Column="1"
+                                                                                    Margin="8,0,0,12">
+                                                                            <TextBlock Text="Description"
+                                                                                       Foreground="#666666"
+                                                                                       FontSize="12"
+                                                                                       Margin="0,0,0,4"/>
+                                                                            <TextBox Text="{Binding Description, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                                                     Style="{StaticResource ModernTextBoxStyle}"/>
+                                                                        </StackPanel>
+
+                                                                        <!-- Display Name Field -->
+                                                                        <StackPanel Grid.Row="2"
+                                                                                    Grid.Column="0"
+                                                                                    Margin="0,0,8,12">
+                                                                            <TextBlock Text="Display Name"
+                                                                                       Foreground="#666666"
+                                                                                       FontSize="12"
+                                                                                       Margin="0,0,0,4"/>
+                                                                            <TextBox Text="{Binding DisplayName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                                                     Style="{StaticResource ModernTextBoxStyle}"/>
+                                                                        </StackPanel>
+
+                                                                        <!-- Service Path Field with Browse Button -->
+                                                                        <StackPanel Grid.Row="3"
+                                                                                    Grid.ColumnSpan="2"
+                                                                                    Margin="0,0,0,16">
+                                                                            <TextBlock Text="Service Path"
+                                                                                       Foreground="#666666"
+                                                                                       FontSize="12"
+                                                                                       Margin="0,0,0,4"/>
+                                                                            <Grid>
+                                                                                <Grid.ColumnDefinitions>
+                                                                                    <ColumnDefinition Width="*"/>
+                                                                                    <ColumnDefinition Width="Auto"/>
+                                                                                </Grid.ColumnDefinitions>
+                                                                                <TextBox Text="{Binding ServicePath, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                                                         Style="{StaticResource ModernTextBoxStyle}"/>
+                                                                                <Button Content="Browse..."
+                                                                                        Grid.Column="1"
+                                                                                        Command="{Binding DataContext.BrowseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                                        CommandParameter="ServicePath"
+                                                                                        Style="{StaticResource ModernButtonStyle}"
+                                                                                        Margin="8,0,0,0"/>
+                                                                            </Grid>
+                                                                        </StackPanel>
+
+                                                                        <!-- Remove Button -->
+                                                                        <Button Grid.Row="4"
+                                                                                Grid.ColumnSpan="2"
+                                                                                Content="Remove Service"
+                                                                                Command="{Binding DataContext.RemoveCustomServiceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                                CommandParameter="{Binding}"
+                                                                                Style="{StaticResource DangerButtonStyle}"
+                                                                                HorizontalAlignment="Right"
+                                                                                Margin="0,4,0,0">
+                                                                            <Button.Resources>
+                                                                                <Style TargetType="Border">
+                                                                                    <Setter Property="CornerRadius"
+                                                                                            Value="4"/>
+                                                                                </Style>
+                                                                            </Button.Resources>
+                                                                        </Button>
+                                                                    </Grid>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ListView.ItemTemplate>
+                                                        <ListView.ItemContainerStyle>
+                                                            <Style TargetType="{x:Type ListViewItem}"
+                                                                   BasedOn="{StaticResource {x:Type ListViewItem}}">
+                                                                <Setter Property="HorizontalContentAlignment"
+                                                                        Value="Stretch"/>
+                                                                <Setter Property="Padding"
+                                                                        Value="4"/>
+                                                                <Setter Property="Margin"
+                                                                        Value="0,2"/>
+                                                            </Style>
+                                                        </ListView.ItemContainerStyle>
+                                                    </ListView>
+                                                </Border>
+                                            </Grid>
                                         </Grid>
-                                       
-                                        <TextBlock Text="Description"
-                                                   Style="{StaticResource LabelTextStyle}"/>
-                                        <TextBox Text="{Binding Description}"
-                                                 Style="{StaticResource ModernTextBoxStyle}"/>
-                                    </StackPanel>
+                                    </ScrollViewer>
                                 </DataTemplate>
-
-                                <!-- Add templates for other config types here -->
                                 <DataTemplate DataType="{x:Type models:SQLServerConfig}">
-                                    <StackPanel>
-                                        <TextBlock Text="SQL Server Configuration"
-                                                   FontSize="18"
-                                                   FontWeight="SemiBold"
-                                                   Margin="0,0,0,16"/>
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                  HorizontalScrollBarVisibility="Disabled"
+                                                  Style="{StaticResource MainScrollViewerStyle}">
+                                        <StackPanel>
+                                            <TextBlock Text="SQL Server Configuration"
+                                                       FontSize="18"
+                                                       FontWeight="SemiBold"
+                                                       Margin="0,0,0,16"/>
 
-                                        <TextBlock Text="Server Name"
-                                                   Style="{StaticResource LabelTextStyle}"/>
-                                        <TextBox Text="{Binding ServerName}"
-                                                 Style="{StaticResource ModernTextBoxStyle}"/>
+                                            <TextBlock Text="Instance Name"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+                                            <TextBox Text="{Binding InstanceName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBoxStyle}"/>
 
-                                        <TextBlock Text="Database Name"
-                                                   Style="{StaticResource LabelTextStyle}"/>
-                                        <TextBox Text="{Binding DatabaseName}"
-                                                 Style="{StaticResource ModernTextBoxStyle}"/>
-                                    </StackPanel>
+                                            <TextBlock Text="Instance ID"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+                                            <TextBox Text="{Binding InstanceId, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBoxStyle}"/>
+
+                                            <TextBlock Text="Install Shared Directory"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+                                            <TextBox Text="{Binding InstallSharedDir, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBoxStyle}"/>
+
+                                            <TextBlock Text="Install Shared WOW Directory"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+                                            <TextBox Text="{Binding InstallSharedWowDir, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBoxStyle}"/>
+
+                                            <TextBlock Text="Instance Directory"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+                                            <TextBox Text="{Binding InstanceDir, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBoxStyle}"/>
+
+                                            <TextBlock Text="SQL User Database Directory"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+                                            <TextBox Text="{Binding SqlUserDbDir, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBoxStyle}"/>
+
+                                            <TextBlock Text="SQL User Database Log Directory"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+                                            <TextBox Text="{Binding SqlUserDbLogDir, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBoxStyle}"/>
+
+                                            <TextBlock Text="SQL Temp Database Directory"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+                                            <TextBox Text="{Binding SqlTempDbDir, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBoxStyle}"/>
+
+                                            <TextBlock Text="SQL Temp Database Log Directory"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+                                            <TextBox Text="{Binding SqlTempDbLogDir, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBoxStyle}"/>
+
+                                            <TextBlock Text="SA Password"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+                                            <TextBox Text="{Binding SaPassword, Mode=TwoWay, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBoxStyle}"/>
+                                        </StackPanel>
+                                    </ScrollViewer>
                                 </DataTemplate>
+
+                                <DataTemplate DataType="{x:Type models:DBRestoreConfig}">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                  HorizontalScrollBarVisibility="Disabled"
+                                                  Style="{StaticResource MainScrollViewerStyle}">
+                                        <StackPanel>
+                                            <TextBlock Text="Database Restore Configuration"
+                                                       FontSize="18"
+                                                       FontWeight="SemiBold"
+                                                       Margin="0,0,0,16"/>
+
+                                            <TextBlock Text="Database Name"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+                                            <TextBox Text="{Binding DatabaseName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBoxStyle}"/>
+
+                                            <TextBlock Text="Backup File Path"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox Text="{Binding BackupFilePath, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource ModernTextBoxStyle}"/>
+                                                <Button Content="Browse..."
+                                                        Grid.Column="1"
+                                                        Margin="8,0,0,0"
+                                                        Command="{Binding DataContext.BrowseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="BackupFilePath"
+                                                        Style="{StaticResource ModernButtonStyle}"/>
+                                            </Grid>
+                                            <TextBlock Text="SQL Server Instance Name"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+                                            <TextBox Text="{Binding ServerInstance, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBoxStyle}"/>
+
+                                            <TextBlock Text="User Name"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+                                            <TextBox Text="{Binding Username, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBoxStyle}"/>
+
+                                            <TextBlock Text="Password"
+                                                       Style="{StaticResource LabelTextStyle}"/>
+                                            <TextBox Text="{Binding Password, Mode=TwoWay, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBoxStyle}"/>
+                                        </StackPanel>
+                                    </ScrollViewer>
+                                </DataTemplate>
+
 
                                 <DataTemplate DataType="{x:Type models:DotNetConfig}">
                                     <StackPanel>
@@ -196,29 +722,44 @@
                                                    FontWeight="SemiBold"
                                                    Margin="0,0,0,16"/>
 
-                                        <TextBlock Text="Version"
+                                        <TextBlock Text="Select .NET Hosting Bundles to install:"
                                                    Style="{StaticResource LabelTextStyle}"/>
-                                        <ComboBox ItemsSource="{Binding AvailableVersions}"
-                                                  SelectedValue="{Binding Version}"
-                                                  Padding="8"
-                                                  Margin="0,0,0,12"/>
 
-                                        <TextBlock Text="Install Path"
-                                                   Style="{StaticResource LabelTextStyle}"/>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBox Text="{Binding InstallPath}"
-                                                     Style="{StaticResource ModernTextBoxStyle}"/>
-                                            <Button Content="Browse..."
-                                                    Grid.Column="1"
-                                                    Margin="8,0,0,0"
-                                                    Style="{StaticResource ModernButtonStyle}"/>
-                                        </Grid>
+                                        <ItemsControl ItemsSource="{Binding AvailableVersions}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Margin="0,0,0,10"
+                                                            Padding="10"
+                                                            BorderBrush="#CCC"
+                                                            BorderThickness="1"
+                                                            CornerRadius="5"
+                                                            Background="White">
+                                                        <StackPanel Orientation="Horizontal"
+                                                                    Margin="0,0,0,8">
+                                                            <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                                      VerticalAlignment="Center"
+                                                                      Margin="0,0,10,0"/>
+                                                            <StackPanel>
+                                                                <TextBlock Text="{Binding Version}"
+                                                                           FontWeight="Bold"
+                                                                           Foreground="#333"/>
+                                                                <TextBlock Text="{Binding Description}"
+                                                                           Foreground="#666"
+                                                                           FontSize="12"/>
+                                                            </StackPanel>
+                                                        </StackPanel>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <CheckBox Content="Force reinstallation"
+                                                  IsChecked="{Binding Force, Mode=TwoWay}"
+                                                  Margin="0,12,0,0"
+                                                  Style="{StaticResource ModernCheckBoxStyle}"/>
                                     </StackPanel>
                                 </DataTemplate>
+
                             </ContentControl.Resources>
                         </ContentControl>
                     </Border>
@@ -227,21 +768,53 @@
         </TabControl>
 
         <!-- Navigation Buttons -->
-        <StackPanel Grid.Row="2"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Right"
-                    Margin="0,20,0,0">
-            <Button Content="Previous"
-                    Command="{Binding PreviousCommand}"
-                    Style="{StaticResource ModernButtonStyle}"
-                    Width="120"
-                    Height="40"
-                    Margin="0,0,12,0"/>
-            <Button Content="Next"
-                    Command="{Binding NextCommand}"
-                    Style="{StaticResource ModernButtonStyle}"
-                    Width="120"
-                    Height="40"/>
-        </StackPanel>
+
+        <Border Grid.Row="2"
+                BorderThickness="0,1,0,0"
+                BorderBrush="#E0E0E0"
+                Background="#F9F9F9"
+                Padding="25,15">
+            <Grid>
+
+
+
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Right">
+                    <Button
+                        Command="{Binding PreviousCommand}"
+                        Style="{StaticResource ModernButtonStyle}"
+                        Width="120"
+                        Height="40"
+                        Margin="8,0">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal">
+
+                                <fa:FontAwesome Icon="ArrowLeft"
+                                                Margin="0,0,8,0"
+                                                VerticalAlignment="Center"/>
+                                <TextBlock Text="Previous"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <Button
+                        Command="{Binding NextCommand}"
+                        Style="{StaticResource ModernButtonStyle}"
+                        Width="120"
+                        Height="40">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Next"
+                                           VerticalAlignment="Center"/>
+                                <fa:FontAwesome Icon="ArrowRight"
+                                                Margin="8,0,0,0"
+                                                VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
     </Grid>
 </UserControl>

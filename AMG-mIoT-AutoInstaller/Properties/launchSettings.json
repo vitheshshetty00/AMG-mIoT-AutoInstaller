@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "AMG-mIoT-AutoInstaller": {
+      "commandName": "Project",
+      "remoteDebugEnabled": true,
+      "authenticationMode": "Windows"
+    },
+    "Profile 1": {
+      "commandName": "Project",
+      "remoteDebugEnabled": true,
+      "remoteDebugMachine": "DESKTOP-DMME89S:4026",
+      "authenticationMode": "None",
+      "nativeDebugging": true
+    }
+  }
+}
